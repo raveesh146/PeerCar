@@ -144,11 +144,15 @@ export default function ChatScreen() {
             style={styles.avatar}
           />
         )}
-        <View style={[
-          styles.messageBubble,
-          isUser ? styles.userMessageBubble : styles.ownerMessageBubble
-        ]}>
-          <Text style={styles.messageText}>{item.text}</Text>
+        <View
+          style={[
+            styles.messageBubble,
+            isUser ? styles.userMessageBubble : styles.ownerMessageBubble,
+          ]}
+        >
+          <Text style={[styles.messageText, isUser && styles.userMessageText]}>
+            {item.text}
+          </Text>
           <Text style={styles.messageTime}>{formatTime(item.timestamp)}</Text>
         </View>
       </View>
