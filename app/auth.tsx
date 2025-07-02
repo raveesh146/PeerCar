@@ -35,7 +35,7 @@ export default function AuthScreen() {
       setTimeout(() => {
         setLoading(false);
         // Navigate to the main app
-        router.push('/');
+        router.push('/home');
       }, 1500);
     } catch (error) {
       setLoading(false);
@@ -52,7 +52,7 @@ export default function AuthScreen() {
       setTimeout(() => {
         setLoading(false);
         // Navigate to the main app
-        router.push('/');
+        router.push('/home');
       }, 1500);
     } catch (error) {
       setLoading(false);
