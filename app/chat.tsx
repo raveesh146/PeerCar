@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import {
     FlatList,
@@ -61,23 +61,37 @@ const INITIAL_MESSAGES: Message[] = [
 ];
 
 export default function ChatScreen() {
-  const navigation = useNavigation<any>();
-  const route = useRoute<any>();
+  const router = useRouter();
+  const params = useLocalSearchParams();
   const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
   const [inputText, setInputText] = useState('');
   const flatListRef = useRef<FlatList<Message>>(null);
   
-  // Get car data from route params
-  const car: Car = route.params?.car || {
-    id: 'default',
-    make: 'Toyota',
-    model: 'Camry',
-    year: '2020',
-    owner: {
-      name: 'John Doe',
-      avatar: 'https://api.a0.dev/assets/image?text=JD&aspect=1:1',
-    }
-  };
+  // Get car data from params
+  let car: Car;
+  try {
+    car = params.car ? JSON.parse(params.car as string) : {
+      id: 'default',
+      make: 'Toyota',
+      model: 'Camry',
+      year: '2020',
+      owner: {
+        name: 'John Doe',
+        avatar: 'https://api.a0.dev/assets/image?text=JD&aspect=1:1',
+      }
+    };
+  } catch {
+    car = {
+      id: 'default',
+      make: 'Toyota',
+      model: 'Camry',
+      year: '2020',
+      owner: {
+        name: 'John Doe',
+        avatar: 'https://api.a0.dev/assets/image?text=JD&aspect=1:1',
+      }
+    };
+  }
 
   useEffect(() => {
     // In a real app, we would connect to libp2p or a messaging service
@@ -164,7 +178,7 @@ export default function ChatScreen() {
       <View style={styles.header}>
         <TouchableOpacity 
           style={styles.backButton}
-          onPress={() => navigation.goBack()}
+          onPress={() => router.back()}
         >
           <Ionicons name="arrow-back" size={24} color="#1a73e8" />
         </TouchableOpacity>
