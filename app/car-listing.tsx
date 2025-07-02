@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import * as DocumentPicker from 'expo-document-picker';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
@@ -31,6 +32,8 @@ export default function CarListingScreen() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [images, setImages] = useState<string[]>([]);
+  const [insuranceDoc, setInsuranceDoc] = useState<{ name: string; uri: string } | null>(null);
+  const [registrationDoc, setRegistrationDoc] = useState<{ name: string; uri: string } | null>(null);
   const [carData, setCarData] = useState<CarData>({
     make: '',
     model: '',
@@ -83,8 +86,24 @@ export default function CarListingScreen() {
   };
 
   const uploadDocument = async (type: string) => {
-    // Simulate document upload
-    Alert.alert(`${type} Uploaded`, `Your ${type.toLowerCase()} has been uploaded successfully`);
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: 'application/pdf',
+        copyToCacheDirectory: true,
+        multiple: false,
+      });
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const file = result.assets[0];
+        if (type === 'Insurance') {
+          setInsuranceDoc({ name: file.name ?? 'Document', uri: file.uri });
+        } else if (type === 'Registration') {
+          setRegistrationDoc({ name: file.name ?? 'Document', uri: file.uri });
+        }
+        Alert.alert(`${type} Uploaded`, `Your ${type.toLowerCase()} has been uploaded successfully`);
+      }
+    } catch (e) {
+      Alert.alert('Error', `Failed to upload ${type.toLowerCase()}. Please try again.`);
+    }
   };
 
   const handleSubmit = async () => {
@@ -253,22 +272,36 @@ export default function CarListingScreen() {
           </Text>
 
           <TouchableOpacity 
-            style={styles.documentButton}
+            style={[styles.documentButton, insuranceDoc && { backgroundColor: '#34a853', borderColor: '#34a853' }]}
             onPress={() => uploadDocument('Insurance')}
           >
             <Ionicons name="document-text-outline" size={24} color="#1a73e8" />
-            <Text style={styles.documentButtonText}>Upload Insurance</Text>
+            <Text style={[styles.documentButtonText, insuranceDoc && { color: '#fff' }]}>Upload Insurance</Text>
             <Ionicons name="chevron-forward" size={24} color="#5f6368" />
           </TouchableOpacity>
 
+          {insuranceDoc && (
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 16, marginBottom: 4 }}>
+              <Ionicons name="document" size={18} color="#34a853" />
+              <Text style={{ marginLeft: 8, color: '#34a853', fontSize: 14 }}>{insuranceDoc.name}</Text>
+            </View>
+          )}
+
           <TouchableOpacity 
-            style={styles.documentButton}
+            style={[styles.documentButton, registrationDoc && { backgroundColor: '#34a853', borderColor: '#34a853' }]}
             onPress={() => uploadDocument('Registration')}
           >
             <Ionicons name="card-outline" size={24} color="#1a73e8" />
-            <Text style={styles.documentButtonText}>Upload Registration</Text>
+            <Text style={[styles.documentButtonText, registrationDoc && { color: '#fff' }]}>Upload Registration</Text>
             <Ionicons name="chevron-forward" size={24} color="#5f6368" />
           </TouchableOpacity>
+
+          {registrationDoc && (
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 16, marginBottom: 4 }}>
+              <Ionicons name="document" size={18} color="#34a853" />
+              <Text style={{ marginLeft: 8, color: '#34a853', fontSize: 14 }}>{registrationDoc.name}</Text>
+            </View>
+          )}
         </View>
 
         <TouchableOpacity 
