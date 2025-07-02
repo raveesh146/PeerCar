@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     ActivityIndicator,
     Alert,
@@ -12,51 +12,47 @@ import {
     View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { usePrivy } from '@privy-io/react-auth';
 
 export default function AuthScreen() {
   const router = useRouter();
-  const [authMethod, setAuthMethod] = useState('email'); // 'email' or 'wallet'
+  const { login, ready, authenticated } = usePrivy();
+  const [authMethod, setAuthMethod] = useState<'email' | 'wallet'>('email');
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
-  
-  console.log('AuthScreen rendering...'); // Debug log
+
+  useEffect(() => {
+    if (ready && authenticated) {
+      router.push('/home');
+    }
+  }, [ready, authenticated]);
   
   const handleEmailAuth = async () => {
     if (!email.trim() || !email.includes('@')) {
       Alert.alert('Invalid Email', 'Please enter a valid email address');
       return;
     }
-    
+
     setLoading(true);
-    
+
     try {
-      // In a real app, we would use Privy SDK to authenticate
-      // For demo purposes, we'll simulate authentication with a timeout
-      setTimeout(() => {
-        setLoading(false);
-        // Navigate to the main app
-        router.push('/home');
-      }, 1500);
+      await login();
     } catch (error) {
-      setLoading(false);
       Alert.alert('Authentication Error', 'Failed to authenticate. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
   
-  const handleWalletAuth = async (walletType: string) => {
+  const handleWalletAuth = async () => {
     setLoading(true);
-    
+
     try {
-      // In a real app, we would use Privy SDK or WalletConnect for mobile
-      // For demo purposes, we'll simulate wallet connection with a timeout
-      setTimeout(() => {
-        setLoading(false);
-        // Navigate to the main app
-        router.push('/home');
-      }, 1500);
+      await login();
     } catch (error) {
-      setLoading(false);
       Alert.alert('Wallet Connection Error', 'Failed to connect wallet. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -138,9 +134,9 @@ export default function AuthScreen() {
               </Text>
               
               <View style={styles.walletOptions}>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={styles.walletOption}
-                  onPress={() => handleWalletAuth('metamask')}
+                  onPress={handleWalletAuth}
                   disabled={loading}
                 >
                   <Image 
@@ -150,9 +146,9 @@ export default function AuthScreen() {
                   <Text style={styles.walletName}>MetaMask</Text>
                 </TouchableOpacity>
                 
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={styles.walletOption}
-                  onPress={() => handleWalletAuth('walletconnect')}
+                  onPress={handleWalletAuth}
                   disabled={loading}
                 >
                   <Image 
@@ -162,9 +158,9 @@ export default function AuthScreen() {
                   <Text style={styles.walletName}>WalletConnect</Text>
                 </TouchableOpacity>
                 
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={styles.walletOption}
-                  onPress={() => handleWalletAuth('coinbase')}
+                  onPress={handleWalletAuth}
                   disabled={loading}
                 >
                   <Image 
