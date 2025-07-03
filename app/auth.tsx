@@ -1,237 +1,259 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { ReactNode, useState } from 'react';
 import {
-    ActivityIndicator,
-    Alert,
-    Image,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Alert,
+  Dimensions,
+  Image,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
+// @ts-ignore: If you haven't installed, run: expo install react-native-linear-gradient
+import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+// Gradient background wrapper
+function GradientBackground({ children }: { children: ReactNode }) {
+  return (
+    <LinearGradient
+      colors={["#6a11cb", "#2575fc"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.gradientBg}
+    >
+      {children}
+    </LinearGradient>
+  );
+}
+
+// Glassmorphic card
+function GlassCard({ children, style }: { children: ReactNode; style?: any }) {
+  return (
+    <View style={[styles.glassCard, style]}>{children}</View>
+  );
+}
+
+// Gradient button
+function GradientButton({ children, onPress, style, disabled }: { children: ReactNode; onPress: () => void; style?: any; disabled?: boolean }) {
+  return (
+    <TouchableOpacity onPress={onPress} style={style} disabled={disabled} activeOpacity={0.85}>
+      <LinearGradient
+        colors={["#6a11cb", "#2575fc"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[styles.gradientButton, disabled && { opacity: 0.6 }]}
+      >
+        <Text style={styles.gradientButtonText}>{children}</Text>
+      </LinearGradient>
+    </TouchableOpacity>
+  );
+}
 
 export default function AuthScreen() {
   const router = useRouter();
-  const [authMethod, setAuthMethod] = useState('email'); // 'email' or 'wallet'
+  const [authMethod, setAuthMethod] = useState<'email' | 'wallet'>('email');
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
-  
-  console.log('AuthScreen rendering...'); // Debug log
-  
+
   const handleEmailAuth = async () => {
     if (!email.trim() || !email.includes('@')) {
       Alert.alert('Invalid Email', 'Please enter a valid email address');
       return;
     }
-    
     setLoading(true);
-    
-    try {
-      // In a real app, we would use Privy SDK to authenticate
-      // For demo purposes, we'll simulate authentication with a timeout
-      setTimeout(() => {
-        setLoading(false);
-        // Navigate to the main app
-        router.push('/home');
-      }, 1500);
-    } catch (error) {
+    setTimeout(() => {
       setLoading(false);
-      Alert.alert('Authentication Error', 'Failed to authenticate. Please try again.');
-    }
+      router.push('/home');
+    }, 1500);
   };
-  
+
   const handleWalletAuth = async (walletType: string) => {
     setLoading(true);
-    
-    try {
-      // In a real app, we would use Privy SDK or WalletConnect for mobile
-      // For demo purposes, we'll simulate wallet connection with a timeout
-      setTimeout(() => {
-        setLoading(false);
-        // Navigate to the main app
-        router.push('/home');
-      }, 1500);
-    } catch (error) {
+    setTimeout(() => {
       setLoading(false);
-      Alert.alert('Wallet Connection Error', 'Failed to connect wallet. Please try again.');
-    }
+      router.push('/home');
+    }, 1500);
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
-        <View style={styles.logoContainer}>
-          <Image 
-            source={{ uri: 'https://api.a0.dev/assets/image?text=PeerCar&aspect=1:1' }} 
-            style={styles.logo} 
-          />
-          <Text style={styles.appName}>PeerCar</Text>
-          <Text style={styles.tagline}>Decentralized Peer-to-Peer Car Rentals</Text>
-        </View>
-        
-        <View style={styles.authContainer}>
-          <View style={styles.tabContainer}>
-            <TouchableOpacity 
-              style={[styles.tab, authMethod === 'email' && styles.activeTab]}
-              onPress={() => setAuthMethod('email')}
-            >
-              <Ionicons 
-                name="mail" 
-                size={20} 
-                color={authMethod === 'email' ? '#1a73e8' : '#5f6368'} 
+    <GradientBackground>
+      <SafeAreaView style={{ flex: 1 }}>
+        <View style={styles.centeredContainer}>
+          <GlassCard style={styles.cardContainer}>
+            <View style={styles.logoContainer}>
+              <Image
+                source={{ uri: 'https://api.a0.dev/assets/image?text=PeerCar&aspect=1:1' }}
+                style={styles.logo}
               />
-              <Text 
-                style={[styles.tabText, authMethod === 'email' && styles.activeTabText]}
+              <Text style={styles.appName}>PeerCar</Text>
+              <Text style={styles.tagline}>Decentralized Peer-to-Peer Car Rentals</Text>
+            </View>
+            <View style={styles.tabContainer}>
+              <TouchableOpacity
+                style={[styles.tab, authMethod === 'email' && styles.activeTab]}
+                onPress={() => setAuthMethod('email')}
               >
-                Email
-              </Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={[styles.tab, authMethod === 'wallet' && styles.activeTab]}
-              onPress={() => setAuthMethod('wallet')}
-            >
-              <Ionicons 
-                name="wallet" 
-                size={20} 
-                color={authMethod === 'wallet' ? '#1a73e8' : '#5f6368'} 
-              />
-              <Text 
-                style={[styles.tabText, authMethod === 'wallet' && styles.activeTabText]}
+                <Ionicons
+                  name="mail"
+                  size={20}
+                  color={authMethod === 'email' ? '#6a11cb' : '#5f6368'}
+                />
+                <Text style={[styles.tabText, authMethod === 'email' && styles.activeTabText]}>Email</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.tab, authMethod === 'wallet' && styles.activeTab]}
+                onPress={() => setAuthMethod('wallet')}
               >
-                Wallet
-              </Text>
-            </TouchableOpacity>
-          </View>
-          
-          {authMethod === 'email' ? (
-            <View style={styles.emailContainer}>
-              <Text style={styles.inputLabel}>Email Address</Text>
-              <TextInput
-                style={styles.input}
-                value={email}
-                onChangeText={setEmail}
-                placeholder="Enter your email"
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
-              
-              <TouchableOpacity 
-                style={styles.authButton}
-                onPress={handleEmailAuth}
-                disabled={loading}
-              >
-                {loading ? (
-                  <ActivityIndicator color="#fff" />
-                ) : (
-                  <Text style={styles.authButtonText}>Continue with Email</Text>
-                )}
+                <Ionicons
+                  name="wallet"
+                  size={20}
+                  color={authMethod === 'wallet' ? '#6a11cb' : '#5f6368'}
+                />
+                <Text style={[styles.tabText, authMethod === 'wallet' && styles.activeTabText]}>Wallet</Text>
               </TouchableOpacity>
             </View>
-          ) : (
-            <View style={styles.walletContainer}>
-              <Text style={styles.walletText}>
-                Connect your wallet to access decentralized car rentals
-              </Text>
-              
-              <View style={styles.walletOptions}>
-                <TouchableOpacity 
-                  style={styles.walletOption}
-                  onPress={() => handleWalletAuth('metamask')}
-                  disabled={loading}
-                >
-                  <Image 
-                    source={{ uri: 'https://api.a0.dev/assets/image?text=Metamask&aspect=1:1' }} 
-                    style={styles.walletIcon} 
-                  />
-                  <Text style={styles.walletName}>MetaMask</Text>
-                </TouchableOpacity>
-                
-                <TouchableOpacity 
-                  style={styles.walletOption}
-                  onPress={() => handleWalletAuth('walletconnect')}
-                  disabled={loading}
-                >
-                  <Image 
-                    source={{ uri: 'https://api.a0.dev/assets/image?text=WalletConnect&aspect=1:1' }} 
-                    style={styles.walletIcon} 
-                  />
-                  <Text style={styles.walletName}>WalletConnect</Text>
-                </TouchableOpacity>
-                
-                <TouchableOpacity 
-                  style={styles.walletOption}
-                  onPress={() => handleWalletAuth('coinbase')}
-                  disabled={loading}
-                >
-                  <Image 
-                    source={{ uri: 'https://api.a0.dev/assets/image?text=Coinbase&aspect=1:1' }} 
-                    style={styles.walletIcon} 
-                  />
-                  <Text style={styles.walletName}>Coinbase</Text>
-                </TouchableOpacity>
+            {authMethod === 'email' ? (
+              <View style={styles.emailContainer}>
+                <Text style={styles.inputLabel}>Email Address</Text>
+                <TextInput
+                  style={styles.input}
+                  value={email}
+                  onChangeText={setEmail}
+                  placeholder="Enter your email"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  placeholderTextColor="#b0b0b0"
+                />
+                <GradientButton onPress={handleEmailAuth} disabled={loading} style={{ marginTop: 18 }}>
+                  {loading ? <ActivityIndicator color="#fff" /> : 'Continue with Email'}
+                </GradientButton>
               </View>
-              
-              {loading && (
-                <ActivityIndicator color="#1a73e8" style={styles.walletLoading} />
-              )}
+            ) : (
+              <View style={styles.walletContainer}>
+                <Text style={styles.walletText}>
+                  Connect your wallet to access decentralized car rentals
+                </Text>
+                <View style={styles.walletOptions}>
+                  <TouchableOpacity
+                    style={styles.walletOption}
+                    onPress={() => handleWalletAuth('metamask')}
+                    disabled={loading}
+                  >
+                    <Image
+                      source={{ uri: 'https://api.a0.dev/assets/image?text=Metamask&aspect=1:1' }}
+                      style={styles.walletIcon}
+                    />
+                    <Text style={styles.walletName}>MetaMask</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.walletOption}
+                    onPress={() => handleWalletAuth('walletconnect')}
+                    disabled={loading}
+                  >
+                    <Image
+                      source={{ uri: 'https://api.a0.dev/assets/image?text=WalletConnect&aspect=1:1' }}
+                      style={styles.walletIcon}
+                    />
+                    <Text style={styles.walletName}>WalletConnect</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.walletOption}
+                    onPress={() => handleWalletAuth('coinbase')}
+                    disabled={loading}
+                  >
+                    <Image
+                      source={{ uri: 'https://api.a0.dev/assets/image?text=Coinbase&aspect=1:1' }}
+                      style={styles.walletIcon}
+                    />
+                    <Text style={styles.walletName}>Coinbase</Text>
+                  </TouchableOpacity>
+                </View>
+                {loading && <ActivityIndicator color="#6a11cb" style={styles.walletLoading} />}
+              </View>
+            )}
+            <View style={styles.footer}>
+              <Text style={styles.footerText}>
+                By continuing, you agree to our Terms of Service and Privacy Policy
+              </Text>
             </View>
-          )}
+          </GlassCard>
         </View>
-        
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>
-            By continuing, you agree to our Terms of Service and Privacy Policy
-          </Text>
-        </View>
-      </View>
-    </SafeAreaView>
+      </SafeAreaView>
+    </GradientBackground>
   );
 }
 
+const { width } = Dimensions.get('window');
+
 const styles = StyleSheet.create({
-  container: {
+  gradientBg: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    minHeight: '100%',
   },
-  content: {
+  centeredContainer: {
     flex: 1,
-    padding: 24,
-    justifyContent: 'space-between',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 16,
+  },
+  cardContainer: {
+    width: width > 400 ? 400 : '100%',
+    borderRadius: 32,
+    padding: 28,
+    marginVertical: 24,
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    shadowColor: '#6a11cb',
+    shadowOpacity: 0.12,
+    shadowRadius: 24,
+    elevation: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.25)',
+  },
+  glassCard: {
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    borderRadius: 32,
+    padding: 0,
+    shadowColor: '#6a11cb',
+    shadowOpacity: 0.12,
+    shadowRadius: 24,
+    elevation: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.25)',
   },
   logoContainer: {
     alignItems: 'center',
-    marginTop: 40,
+    marginBottom: 18,
   },
   logo: {
-    width: 100,
-    height: 100,
+    width: 72,
+    height: 72,
     borderRadius: 20,
+    marginBottom: 8,
   },
   appName: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#1a73e8',
-    marginTop: 16,
+    color: '#6a11cb',
+    marginBottom: 2,
+    letterSpacing: 1.2,
   },
   tagline: {
-    fontSize: 16,
-    color: '#5f6368',
-    marginTop: 8,
+    fontSize: 15,
+    color: '#444',
+    marginBottom: 8,
     textAlign: 'center',
-  },
-  authContainer: {
-    marginVertical: 40,
+    opacity: 0.8,
   },
   tabContainer: {
     flexDirection: 'row',
-    marginBottom: 24,
-    borderRadius: 8,
-    backgroundColor: '#e8eaed',
-    padding: 4,
+    backgroundColor: 'rgba(255,255,255,0.25)',
+    borderRadius: 16,
+    marginBottom: 18,
+    overflow: 'hidden',
   },
   tab: {
     flex: 1,
@@ -239,15 +261,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 12,
-    borderRadius: 6,
+    borderRadius: 16,
   },
   activeTab: {
-    backgroundColor: '#fff',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    backgroundColor: 'rgba(255,255,255,0.7)',
   },
   tabText: {
     marginLeft: 8,
@@ -256,39 +273,46 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   activeTabText: {
-    color: '#1a73e8',
+    color: '#6a11cb',
+    fontWeight: 'bold',
   },
   emailContainer: {
-    marginTop: 16,
+    marginTop: 8,
   },
   inputLabel: {
     fontSize: 14,
     fontWeight: '500',
     marginBottom: 8,
     color: '#202124',
+    opacity: 0.8,
   },
   input: {
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(255,255,255,0.7)',
     borderWidth: 1,
     borderColor: '#dadce0',
-    borderRadius: 8,
-    padding: 12,
+    borderRadius: 12,
+    padding: 14,
     fontSize: 16,
-    marginBottom: 24,
+    marginBottom: 18,
+    color: '#222',
   },
-  authButton: {
-    backgroundColor: '#1a73e8',
-    borderRadius: 8,
-    paddingVertical: 14,
+  gradientButton: {
+    borderRadius: 16,
+    paddingVertical: 16,
     alignItems: 'center',
+    shadowColor: '#6a11cb',
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    elevation: 3,
   },
-  authButtonText: {
+  gradientButtonText: {
     color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 'bold',
+    fontSize: 18,
+    letterSpacing: 0.5,
   },
   walletContainer: {
-    marginTop: 16,
+    marginTop: 8,
     alignItems: 'center',
   },
   walletText: {
@@ -301,29 +325,35 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     width: '100%',
+    marginBottom: 12,
   },
   walletOption: {
     alignItems: 'center',
+    marginHorizontal: 8,
   },
   walletIcon: {
     width: 60,
     height: 60,
     borderRadius: 30,
     marginBottom: 8,
+    backgroundColor: '#fff',
   },
   walletName: {
     fontSize: 14,
     color: '#202124',
+    fontWeight: '500',
   },
   walletLoading: {
     marginTop: 24,
   },
   footer: {
-    marginBottom: 16,
+    marginTop: 18,
+    alignItems: 'center',
   },
   footerText: {
     fontSize: 12,
     color: '#5f6368',
     textAlign: 'center',
+    opacity: 0.8,
   },
 });

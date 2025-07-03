@@ -1,6 +1,44 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { default as React} from 'react';
-import { Image, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { ReactNode } from 'react';
+import { Dimensions, Image, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+
+// Gradient background wrapper
+function GradientBackground({ children }: { children: ReactNode }) {
+  return (
+    <LinearGradient
+      colors={["#6a11cb", "#2575fc"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.gradientBg}
+    >
+      {children}
+    </LinearGradient>
+  );
+}
+
+// Glassmorphic card
+function GlassCard({ children, style }: { children: ReactNode; style?: any }) {
+  return (
+    <View style={[styles.glassCard, style]}>{children}</View>
+  );
+}
+
+// Gradient button
+function GradientButton({ children, onPress, style, disabled }: { children: ReactNode; onPress: () => void; style?: any; disabled?: boolean }) {
+  return (
+    <TouchableOpacity onPress={onPress} style={style} disabled={disabled} activeOpacity={0.85}>
+      <LinearGradient
+        colors={["#6a11cb", "#2575fc"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[styles.gradientButton, disabled && { opacity: 0.6 }]}
+      >
+        <Text style={styles.gradientButtonText}>{children}</Text>
+      </LinearGradient>
+    </TouchableOpacity>
+  );
+}
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -14,119 +52,134 @@ export default function HomeScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>PeerCar</Text>
-        <Text style={styles.subtitle}>Decentralized P2P Car Rentals</Text>
-      </View>
-
-      <View style={styles.imageContainer}>
-        <Image 
-          source={{ uri: 'https://api.a0.dev/assets/image?text=PeerCar%20P2P%20Car%20Rental&aspect=1:1' }} 
-          style={styles.image} 
-        />
-      </View>
-
-      <View style={styles.roleContainer}>
-        <Text style={styles.roleTitle}>Choose your role:</Text>
-
-        <TouchableOpacity 
-          style={[styles.roleButton, styles.renterButton]} 
-          onPress={handleRenterPress}
-        >
-          <Text style={styles.roleButtonText}>I want to rent a car</Text>
-          <Text style={styles.roleDescription}>Browse nearby available cars</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          style={[styles.roleButton, styles.listerButton]} 
-          onPress={handleListerPress}
-        >
-          <Text style={styles.roleButtonText}>I want to list my car</Text>
-          <Text style={styles.roleDescription}>Earn money by renting out your car</Text>
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>Powered by IPFS & Decentralized Technology</Text>
-      </View>
-    </SafeAreaView>
+    <GradientBackground>
+      <SafeAreaView style={{ flex: 1 }}>
+        <View style={styles.centeredContainer}>
+          <GlassCard style={styles.cardContainer}>
+            <View style={styles.logoContainer}>
+              <Image
+                source={{ uri: 'https://api.a0.dev/assets/image?text=PeerCar%20P2P%20Car%20Rental&aspect=1:1' }}
+                style={styles.logo}
+              />
+              <Text style={styles.appName}>PeerCar</Text>
+              <Text style={styles.tagline}>Decentralized P2P Car Rentals</Text>
+            </View>
+            <View style={styles.roleContainer}>
+              <Text style={styles.roleTitle}>Choose your role:</Text>
+              <GradientButton onPress={handleRenterPress} style={{ marginBottom: 16 }}>
+                I want to rent a car
+              </GradientButton>
+              <GradientButton onPress={handleListerPress}>
+                I want to list my car
+              </GradientButton>
+            </View>
+            <View style={styles.footer}>
+              <Text style={styles.footerText}>Powered by IPFS & Decentralized Technology</Text>
+            </View>
+          </GlassCard>
+        </View>
+      </SafeAreaView>
+    </GradientBackground>
   );
 }
 
+const { width } = Dimensions.get('window');
+
 const styles = StyleSheet.create({
-  container: {
+  gradientBg: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    minHeight: '100%',
   },
-  header: {
+  centeredContainer: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 24,
+    padding: 16,
   },
-  title: {
+  cardContainer: {
+    width: width > 400 ? 400 : '100%',
+    borderRadius: 32,
+    padding: 28,
+    marginVertical: 24,
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    shadowColor: '#6a11cb',
+    shadowOpacity: 0.12,
+    shadowRadius: 24,
+    elevation: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.25)',
+  },
+  glassCard: {
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    borderRadius: 32,
+    padding: 0,
+    shadowColor: '#6a11cb',
+    shadowOpacity: 0.12,
+    shadowRadius: 24,
+    elevation: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.25)',
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 18,
+  },
+  logo: {
+    width: 100,
+    height: 100,
+    borderRadius: 20,
+    marginBottom: 8,
+  },
+  appName: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#1a73e8',
+    color: '#6a11cb',
+    marginBottom: 2,
+    letterSpacing: 1.2,
   },
-  subtitle: {
-    fontSize: 16,
-    color: '#5f6368',
-    marginTop: 8,
-  },
-  imageContainer: {
-    alignItems: 'center',
-    marginVertical: 20,
-  },
-  image: {
-    width: 200,
-    height: 200,
-    borderRadius: 20,
+  tagline: {
+    fontSize: 15,
+    color: '#444',
+    marginBottom: 8,
+    textAlign: 'center',
+    opacity: 0.8,
   },
   roleContainer: {
-    paddingHorizontal: 20,
-    marginTop: 20,
+    marginTop: 16,
+    marginBottom: 16,
   },
   roleTitle: {
     fontSize: 18,
     fontWeight: '600',
     marginBottom: 16,
     textAlign: 'center',
+    color: '#202124',
+    opacity: 0.9,
   },
-  roleButton: {
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+  gradientButton: {
+    borderRadius: 16,
+    paddingVertical: 16,
+    alignItems: 'center',
+    shadowColor: '#6a11cb',
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
     elevation: 3,
+    marginBottom: 0,
   },
-  renterButton: {
-    backgroundColor: '#1a73e8',
-  },
-  listerButton: {
-    backgroundColor: '#34a853',
-  },
-  roleButtonText: {
-    fontSize: 18,
+  gradientButtonText: {
+    color: '#fff',
     fontWeight: 'bold',
-    color: 'white',
-    marginBottom: 4,
-  },
-  roleDescription: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.8)',
+    fontSize: 18,
+    letterSpacing: 0.5,
   },
   footer: {
-    position: 'absolute',
-    bottom: 20,
-    left: 0,
-    right: 0,
+    marginTop: 18,
     alignItems: 'center',
   },
   footerText: {
     fontSize: 12,
     color: '#5f6368',
+    textAlign: 'center',
+    opacity: 0.8,
   },
 });
