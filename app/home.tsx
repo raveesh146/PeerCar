@@ -7,7 +7,7 @@ import { Dimensions, Image, SafeAreaView, StyleSheet, Text, TouchableOpacity, Vi
 function GradientBackground({ children }: { children: ReactNode }) {
   return (
     <LinearGradient
-      colors={["#6a11cb", "#2575fc"]}
+      colors={["#4facfe", "#00f2fe"]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={styles.gradientBg}
@@ -29,7 +29,7 @@ function GradientButton({ children, onPress, style, disabled }: { children: Reac
   return (
     <TouchableOpacity onPress={onPress} style={style} disabled={disabled} activeOpacity={0.85}>
       <LinearGradient
-        colors={["#6a11cb", "#2575fc"]}
+        colors={["#4facfe", "#00f2fe"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={[styles.gradientButton, disabled && { opacity: 0.6 }]}
@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
     padding: 28,
     marginVertical: 24,
     backgroundColor: 'rgba(255,255,255,0.18)',
-    shadowColor: '#6a11cb',
+    shadowColor: '#4facfe',
     shadowOpacity: 0.12,
     shadowRadius: 24,
     elevation: 8,
@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.18)',
     borderRadius: 32,
     padding: 0,
-    shadowColor: '#6a11cb',
+    shadowColor: '#4facfe',
     shadowOpacity: 0.12,
     shadowRadius: 24,
     elevation: 8,
@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
   appName: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#6a11cb',
+    color: '#4facfe',
     marginBottom: 2,
     letterSpacing: 1.2,
   },
@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     paddingVertical: 16,
     alignItems: 'center',
-    shadowColor: '#6a11cb',
+    shadowColor: '#4facfe',
     shadowOpacity: 0.12,
     shadowRadius: 8,
     elevation: 3,

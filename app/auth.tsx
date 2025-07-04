@@ -20,7 +20,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 function GradientBackground({ children }: { children: ReactNode }) {
   return (
     <LinearGradient
-      colors={["#6a11cb", "#2575fc"]}
+      colors={["#4facfe", "#00f2fe"]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={styles.gradientBg}
@@ -42,7 +42,7 @@ function GradientButton({ children, onPress, style, disabled }: { children: Reac
   return (
     <TouchableOpacity onPress={onPress} style={style} disabled={disabled} activeOpacity={0.85}>
       <LinearGradient
-        colors={["#6a11cb", "#2575fc"]}
+        colors={["#4facfe", "#00f2fe"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={[styles.gradientButton, disabled && { opacity: 0.6 }]}
@@ -100,7 +100,7 @@ export default function AuthScreen() {
                 <Ionicons
                   name="mail"
                   size={20}
-                  color={authMethod === 'email' ? '#6a11cb' : '#5f6368'}
+                  color={authMethod === 'email' ? '#4facfe' : '#5f6368'}
                 />
                 <Text style={[styles.tabText, authMethod === 'email' && styles.activeTabText]}>Email</Text>
               </TouchableOpacity>
@@ -111,7 +111,7 @@ export default function AuthScreen() {
                 <Ionicons
                   name="wallet"
                   size={20}
-                  color={authMethod === 'wallet' ? '#6a11cb' : '#5f6368'}
+                  color={authMethod === 'wallet' ? '#4facfe' : '#5f6368'}
                 />
                 <Text style={[styles.tabText, authMethod === 'wallet' && styles.activeTabText]}>Wallet</Text>
               </TouchableOpacity>
@@ -172,7 +172,7 @@ export default function AuthScreen() {
                     <Text style={styles.walletName}>Coinbase</Text>
                   </TouchableOpacity>
                 </View>
-                {loading && <ActivityIndicator color="#6a11cb" style={styles.walletLoading} />}
+                {loading && <ActivityIndicator color="#4facfe" style={styles.walletLoading} />}
               </View>
             )}
             <View style={styles.footer}>
@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
     padding: 28,
     marginVertical: 24,
     backgroundColor: 'rgba(255,255,255,0.18)',
-    shadowColor: '#6a11cb',
+    shadowColor: '#4facfe',
     shadowOpacity: 0.12,
     shadowRadius: 24,
     elevation: 8,
@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.18)',
     borderRadius: 32,
     padding: 0,
-    shadowColor: '#6a11cb',
+    shadowColor: '#4facfe',
     shadowOpacity: 0.12,
     shadowRadius: 24,
     elevation: 8,
@@ -237,7 +237,7 @@ const styles = StyleSheet.create({
   appName: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#6a11cb',
+    color: '#4facfe',
     marginBottom: 2,
     letterSpacing: 1.2,
   },
@@ -273,7 +273,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   activeTabText: {
-    color: '#6a11cb',
+    color: '#4facfe',
     fontWeight: 'bold',
   },
   emailContainer: {
@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     paddingVertical: 16,
     alignItems: 'center',
-    shadowColor: '#6a11cb',
+    shadowColor: '#4facfe',
     shadowOpacity: 0.12,
     shadowRadius: 8,
     elevation: 3,

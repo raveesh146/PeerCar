@@ -1,18 +1,56 @@
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { ReactNode, useEffect, useRef, useState } from 'react';
 import {
-    ActivityIndicator,
-    Animated,
-    Dimensions,
-    FlatList,
-    Image,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Animated,
+  Dimensions,
+  FlatList,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+// Gradient background wrapper
+function GradientBackground({ children }: { children: ReactNode }) {
+  return (
+    <LinearGradient
+      colors={["#4facfe", "#00f2fe"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.gradientBg}
+    >
+      {children}
+    </LinearGradient>
+  );
+}
+
+// Glassmorphic card
+function GlassCard({ children, style }: { children: ReactNode; style?: any }) {
+  return (
+    <View style={[styles.glassCard, style]}>{children}</View>
+  );
+}
+
+// Gradient button
+function GradientButton({ children, onPress, style, disabled }: { children: ReactNode; onPress: () => void; style?: any; disabled?: boolean }) {
+  return (
+    <TouchableOpacity onPress={onPress} style={style} disabled={disabled} activeOpacity={0.85}>
+      <LinearGradient
+        colors={["#4facfe", "#00f2fe"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[styles.gradientButton, disabled && { opacity: 0.6 }]}
+      >
+        <Text style={styles.gradientButtonText}>{children}</Text>
+      </LinearGradient>
+    </TouchableOpacity>
+  );
+}
 
 interface Car {
   id: string;
@@ -201,137 +239,139 @@ export default function RenterMapScreen() {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity 
-          style={styles.backButton}
-          onPress={() => router.push('/')}
-        >
-          <Ionicons name="arrow-back" size={24} color="#1a73e8" />
-        </TouchableOpacity>
-        <Text style={styles.title}>Find Nearby Cars</Text>
-        <TouchableOpacity 
-          style={styles.filterButton}
-          onPress={() => {}}
-        >
-          <Ionicons name="options-outline" size={24} color="#1a73e8" />
-        </TouchableOpacity>
-      </View>
-      
-      {loading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#1a73e8" />
-          <Text style={styles.loadingText}>Finding nearby cars...</Text>
-        </View>
-      ) : (
-        <View style={styles.content}>
-          <View style={styles.mapPlaceholder}>
-            <Image 
-              source={{ uri: 'https://api.a0.dev/assets/image?text=Map%20View%20of%20San%20Francisco&aspect=16:9' }} 
-              style={styles.mapImage}
-              resizeMode="cover"
-            />
-            <View style={styles.mapOverlay}>
-              <Text style={styles.mapText}>San Francisco, CA</Text>
-              <Text style={styles.mapSubtext}>{cars.length} cars available</Text>
-            </View>
-          </View>
-          
-          <View style={styles.listContainer}>
-            <Text style={styles.listTitle}>Available Cars Nearby</Text>
-            <FlatList
-              data={cars}
-              renderItem={renderCarItem}
-              keyExtractor={item => item.id}
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.carList}
-            />
-          </View>
-          
-          <Animated.View 
-            style={[
-              styles.carCardContainer, 
-              { transform: [{ translateY: cardTranslateY }] }
-            ]}
+    <GradientBackground>
+      <SafeAreaView style={{ flex: 1 }}>
+        <View style={styles.header}>
+          <TouchableOpacity 
+            style={styles.backButton}
+            onPress={() => router.push('/')}
           >
-            {selectedCar && (
-              <View style={styles.carCard}>
-                <TouchableOpacity 
-                  style={styles.closeButton}
-                  onPress={handleCloseCard}
-                >
-                  <Ionicons name="close" size={24} color="#5f6368" />
-                </TouchableOpacity>
-                
+            <Ionicons name="arrow-back" size={24} color="#fff" />
+          </TouchableOpacity>
+          <Text style={styles.title}>Find Nearby Cars</Text>
+          <TouchableOpacity 
+            style={styles.filterButton}
+            onPress={() => {}}
+          >
+            <Ionicons name="options-outline" size={24} color="#fff" />
+          </TouchableOpacity>
+        </View>
+        
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#fff" />
+            <Text style={styles.loadingText}>Finding nearby cars...</Text>
+          </View>
+        ) : (
+          <View style={styles.content}>
+            <GlassCard style={styles.mapCard}>
+              <View style={styles.mapPlaceholder}>
                 <Image 
-                  source={{ uri: selectedCar.images[0] }} 
-                  style={styles.carImage}
+                  source={{ uri: 'https://api.a0.dev/assets/image?text=Map%20View%20of%20San%20Francisco&aspect=16:9' }} 
+                  style={styles.mapImage}
+                  resizeMode="cover"
                 />
-                
-                <View style={styles.carInfo}>
-                  <View style={styles.carHeader}>
-                    <View>
-                      <Text style={styles.carTitle}>
-                        {selectedCar.year} {selectedCar.make} {selectedCar.model}
-                      </Text>
-                      <View style={styles.ratingContainer}>
-                        <Ionicons name="star" size={16} color="#fbbc04" />
-                        <Text style={styles.ratingText}>
-                          {selectedCar.rating} ({selectedCar.reviews} reviews)
-                        </Text>
-                      </View>
-                    </View>
-                    <Text style={styles.priceText}>${selectedCar.pricePerDay}/day</Text>
-                  </View>
-                  
-                  <View style={styles.locationContainer}>
-                    <Ionicons name="location-outline" size={16} color="#5f6368" />
-                    <Text style={styles.locationText}>{selectedCar.location.address}</Text>
-                  </View>
-                  
-                  <View style={styles.ownerContainer}>
-                    <Image 
-                      source={{ uri: selectedCar.owner.avatar }} 
-                      style={styles.ownerAvatar}
-                    />
-                    <View style={styles.ownerInfo}>
-                      <Text style={styles.ownerName}>{selectedCar.owner.name}</Text>
-                      <View style={styles.ownerRating}>
-                        <Ionicons name="star" size={14} color="#fbbc04" />
-                        <Text style={styles.ownerRatingText}>{selectedCar.owner.rating}</Text>
-                      </View>
-                    </View>
-                  </View>
-                  
-                  <View style={styles.buttonContainer}>
-                    <TouchableOpacity 
-                      style={styles.chatButton}
-                      onPress={handleChatPress}
-                    >
-                      <Ionicons name="chatbubble-outline" size={20} color="#1a73e8" />
-                      <Text style={styles.chatButtonText}>Chat with Owner</Text>
-                    </TouchableOpacity>
-                    
-                    <TouchableOpacity style={styles.rentButton}>
-                      <Text style={styles.rentButtonText}>Rent Now</Text>
-                    </TouchableOpacity>
-                  </View>
+                <View style={styles.mapOverlay}>
+                  <Text style={styles.mapText}>San Francisco, CA</Text>
+                  <Text style={styles.mapSubtext}>{cars.length} cars available</Text>
                 </View>
               </View>
-            )}
-          </Animated.View>
-        </View>
-      )}
-    </SafeAreaView>
+            </GlassCard>
+            
+            <View style={styles.listContainer}>
+              <Text style={styles.listTitle}>Available Cars Nearby</Text>
+              <FlatList
+                data={cars}
+                renderItem={renderCarItem}
+                keyExtractor={item => item.id}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.carList}
+              />
+            </View>
+            
+            <Animated.View 
+              style={[
+                styles.carCardContainer, 
+                { transform: [{ translateY: cardTranslateY }] }
+              ]}
+            >
+              {selectedCar && (
+                <GlassCard style={styles.carCard}>
+                  <TouchableOpacity 
+                    style={styles.closeButton}
+                    onPress={handleCloseCard}
+                  >
+                    <Ionicons name="close" size={24} color="#5f6368" />
+                  </TouchableOpacity>
+                  
+                  <Image 
+                    source={{ uri: selectedCar.images[0] }} 
+                    style={styles.carImage}
+                  />
+                  
+                  <View style={styles.carInfo}>
+                    <View style={styles.carHeader}>
+                      <View>
+                        <Text style={styles.carTitle}>
+                          {selectedCar.year} {selectedCar.make} {selectedCar.model}
+                        </Text>
+                        <View style={styles.ratingContainer}>
+                          <Ionicons name="star" size={16} color="#fbbc04" />
+                          <Text style={styles.ratingText}>
+                            {selectedCar.rating} ({selectedCar.reviews} reviews)
+                          </Text>
+                        </View>
+                      </View>
+                      <Text style={styles.priceText}>${selectedCar.pricePerDay}/day</Text>
+                    </View>
+                    
+                    <View style={styles.locationContainer}>
+                      <Ionicons name="location-outline" size={16} color="#5f6368" />
+                      <Text style={styles.locationText}>{selectedCar.location.address}</Text>
+                    </View>
+                    
+                    <View style={styles.ownerContainer}>
+                      <Image source={{ uri: selectedCar.owner.avatar }} style={styles.ownerAvatar} />
+                      <View style={styles.ownerInfo}>
+                        <Text style={styles.ownerName}>{selectedCar.owner.name}</Text>
+                        <View style={styles.ownerRating}>
+                          <Ionicons name="star" size={14} color="#fbbc04" />
+                          <Text style={styles.ownerRatingText}>{selectedCar.owner.rating}</Text>
+                        </View>
+                      </View>
+                    </View>
+                    
+                    <GradientButton onPress={handleChatPress} style={{ marginTop: 16 }}>
+                      Chat with Owner
+                    </GradientButton>
+                  </View>
+                </GlassCard>
+              )}
+            </Animated.View>
+          </View>
+        )}
+      </SafeAreaView>
+    </GradientBackground>
   );
 }
 
 const { width } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
-  container: {
+  gradientBg: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    minHeight: '100%',
+  },
+  glassCard: {
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    borderRadius: 32,
+    padding: 0,
+    shadowColor: '#4facfe',
+    shadowOpacity: 0.12,
+    shadowRadius: 24,
+    elevation: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.25)',
   },
   header: {
     flexDirection: 'row',
@@ -339,9 +379,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 16,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e8eaed',
   },
   backButton: {
     padding: 8,
@@ -349,13 +386,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#1a73e8',
+    color: '#fff',
   },
   filterButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#e8f0fe',
+    backgroundColor: 'rgba(255,255,255,0.2)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -367,10 +404,16 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 16,
     fontSize: 16,
-    color: '#5f6368',
+    color: '#fff',
   },
   content: {
     flex: 1,
+    padding: 16,
+  },
+  mapCard: {
+    borderRadius: 24,
+    overflow: 'hidden',
+    marginBottom: 16,
   },
   mapPlaceholder: {
     height: 200,
@@ -386,8 +429,8 @@ const styles = StyleSheet.create({
     bottom: 20,
     left: 20,
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    borderRadius: 8,
-    padding: 10,
+    borderRadius: 12,
+    padding: 12,
   },
   mapText: {
     fontSize: 16,
@@ -396,16 +439,15 @@ const styles = StyleSheet.create({
   },
   mapSubtext: {
     fontSize: 14,
-    color: '#1a73e8',
+    color: '#4facfe',
   },
   listContainer: {
     flex: 1,
-    padding: 16,
   },
   listTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#202124',
+    color: '#fff',
     marginBottom: 16,
   },
   carList: {
@@ -413,15 +455,16 @@ const styles = StyleSheet.create({
   },
   carItem: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
-    borderRadius: 12,
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    borderRadius: 16,
     marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowColor: '#4facfe',
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    elevation: 4,
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.25)',
   },
   carItemImage: {
     width: 120,
@@ -440,7 +483,7 @@ const styles = StyleSheet.create({
   carItemPrice: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#1a73e8',
+    color: '#4facfe',
     marginBottom: 8,
   },
   carItemLocation: {
@@ -471,13 +514,8 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   carCard: {
-    backgroundColor: 'white',
-    borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
+    borderRadius: 24,
+    overflow: 'hidden',
   },
   closeButton: {
     position: 'absolute',
@@ -494,8 +532,6 @@ const styles = StyleSheet.create({
   carImage: {
     width: '100%',
     height: 180,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
   },
   carInfo: {
     padding: 16,
@@ -524,7 +560,7 @@ const styles = StyleSheet.create({
   priceText: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#1a73e8',
+    color: '#4facfe',
   },
   locationContainer: {
     flexDirection: 'row',
@@ -541,17 +577,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 16,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#e8eaed',
   },
   ownerAvatar: {
     width: 40,
     height: 40,
     borderRadius: 20,
+    marginRight: 12,
   },
   ownerInfo: {
-    marginLeft: 12,
+    flex: 1,
   },
   ownerName: {
     fontSize: 16,
@@ -568,37 +602,19 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#5f6368',
   },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  chatButton: {
-    flexDirection: 'row',
+  gradientButton: {
+    borderRadius: 16,
+    paddingVertical: 16,
     alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#e8f0fe',
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    flex: 1,
-    marginRight: 8,
+    shadowColor: '#4facfe',
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    elevation: 3,
   },
-  chatButtonText: {
-    marginLeft: 8,
-    color: '#1a73e8',
-    fontWeight: '500',
-  },
-  rentButton: {
-    backgroundColor: '#1a73e8',
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    flex: 1,
-    marginLeft: 8,
-    alignItems: 'center',
-  },
-  rentButtonText: {
-    color: 'white',
-    fontWeight: '500',
+  gradientButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 18,
+    letterSpacing: 0.5,
   },
 });

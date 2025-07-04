@@ -1,19 +1,58 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { ReactNode, useState } from 'react';
 import {
-    ActivityIndicator,
-    Alert,
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Alert,
+  Dimensions,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+// Gradient background wrapper
+function GradientBackground({ children }: { children: ReactNode }) {
+  return (
+    <LinearGradient
+      colors={["#4facfe", "#00f2fe"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.gradientBg}
+    >
+      {children}
+    </LinearGradient>
+  );
+}
+
+// Glassmorphic card
+function GlassCard({ children, style }: { children: ReactNode; style?: any }) {
+  return (
+    <View style={[styles.glassCard, style]}>{children}</View>
+  );
+}
+
+// Gradient button
+function GradientButton({ children, onPress, style, disabled }: { children: ReactNode; onPress: () => void; style?: any; disabled?: boolean }) {
+  return (
+    <TouchableOpacity onPress={onPress} style={style} disabled={disabled} activeOpacity={0.85}>
+      <LinearGradient
+        colors={["#4facfe", "#00f2fe"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[styles.gradientButton, disabled && { opacity: 0.6 }]}
+      >
+        <Text style={styles.gradientButtonText}>{children}</Text>
+      </LinearGradient>
+    </TouchableOpacity>
+  );
+}
 
 interface CarData {
   make: string;
@@ -143,199 +182,208 @@ export default function CarListingScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity 
-          style={styles.backButton}
-          onPress={() => router.push('/')}
-        >
-          <Ionicons name="arrow-back" size={24} color="#1a73e8" />
-        </TouchableOpacity>
-        <Text style={styles.title}>List Your Car</Text>
-        <View style={styles.placeholder} />
-      </View>
-
-      <ScrollView style={styles.scrollView}>
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Car Photos</Text>
-          <Text style={styles.sectionDescription}>
-            Upload clear photos of your car (max 5)
-          </Text>
-
-          <ScrollView 
-            horizontal 
-            showsHorizontalScrollIndicator={false}
-            style={styles.imageScrollView}
+    <GradientBackground>
+      <SafeAreaView style={{ flex: 1 }}>
+        <View style={styles.header}>
+          <TouchableOpacity 
+            style={styles.backButton}
+            onPress={() => router.push('/')}
           >
-            {images.map((image, index) => (
-              <View key={index} style={styles.imageContainer}>
-                <Image source={{ uri: image }} style={styles.carImage} />
+            <Ionicons name="arrow-back" size={24} color="#fff" />
+          </TouchableOpacity>
+          <Text style={styles.title}>List Your Car</Text>
+          <View style={styles.placeholder} />
+        </View>
+
+        <ScrollView style={styles.scrollView}>
+          <GlassCard style={styles.cardContainer}>
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Car Photos</Text>
+              <Text style={styles.sectionDescription}>
+                Upload clear photos of your car (max 5)
+              </Text>
+
+              <ScrollView 
+                horizontal 
+                showsHorizontalScrollIndicator={false}
+                style={styles.imageScrollView}
+              >
+                {images.map((image, index) => (
+                  <View key={index} style={styles.imageContainer}>
+                    <Image source={{ uri: image }} style={styles.carImage} />
+                    <TouchableOpacity 
+                      style={styles.removeImageButton}
+                      onPress={() => removeImage(index)}
+                    >
+                      <Ionicons name="close-circle" size={24} color="#ff5252" />
+                    </TouchableOpacity>
+                  </View>
+                ))}
+
+                {images.length < 5 && (
+                  <TouchableOpacity 
+                    style={styles.addImageButton}
+                    onPress={pickImage}
+                  >
+                    <Ionicons name="add" size={40} color="#4facfe" />
+                    <Text style={styles.addImageText}>Add Photo</Text>
+                  </TouchableOpacity>
+                )}
+              </ScrollView>
+            </View>
+
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Car Details</Text>
+              
+              <Text style={styles.inputLabel}>Make *</Text>
+              <TextInput
+                style={styles.input}
+                value={carData.make}
+                onChangeText={(text) => handleInputChange('make', text)}
+                placeholder="e.g. Toyota"
+                placeholderTextColor="#b0b0b0"
+              />
+
+              <Text style={styles.inputLabel}>Model *</Text>
+              <TextInput
+                style={styles.input}
+                value={carData.model}
+                onChangeText={(text) => handleInputChange('model', text)}
+                placeholder="e.g. Camry"
+                placeholderTextColor="#b0b0b0"
+              />
+
+              <Text style={styles.inputLabel}>Year *</Text>
+              <TextInput
+                style={styles.input}
+                value={carData.year}
+                onChangeText={(text) => handleInputChange('year', text)}
+                placeholder="e.g. 2020"
+                keyboardType="number-pad"
+                placeholderTextColor="#b0b0b0"
+              />
+
+              <Text style={styles.inputLabel}>Description</Text>
+              <TextInput
+                style={[styles.input, styles.textArea]}
+                value={carData.description}
+                onChangeText={(text) => handleInputChange('description', text)}
+                placeholder="Describe your car, its features, condition, etc."
+                multiline
+                numberOfLines={4}
+                textAlignVertical="top"
+                placeholderTextColor="#b0b0b0"
+              />
+
+              <Text style={styles.inputLabel}>Price Per Day (USD) *</Text>
+              <TextInput
+                style={styles.input}
+                value={carData.pricePerDay}
+                onChangeText={(text) => handleInputChange('pricePerDay', text)}
+                placeholder="e.g. 45"
+                keyboardType="number-pad"
+                placeholderTextColor="#b0b0b0"
+              />
+            </View>
+
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Location</Text>
+              
+              <View style={styles.locationContainer}>
+                <Text style={styles.locationText}>
+                  {carData.location.address}
+                </Text>
                 <TouchableOpacity 
-                  style={styles.removeImageButton}
-                  onPress={() => removeImage(index)}
+                  style={styles.locationButton}
+                  onPress={getCurrentLocation}
                 >
-                  <Ionicons name="close-circle" size={24} color="#ff5252" />
+                  <Ionicons name="location" size={20} color="#fff" />
+                  <Text style={styles.locationButtonText}>Set Current Location</Text>
                 </TouchableOpacity>
               </View>
-            ))}
 
-            {images.length < 5 && (
+              <View style={styles.mapPlaceholder}>
+                <Image 
+                  source={{ uri: 'https://api.a0.dev/assets/image?text=Map%20Location&aspect=16:9' }}
+                  style={styles.mapImage}
+                  resizeMode="cover"
+                />
+              </View>
+            </View>
+
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Documents</Text>
+              <Text style={styles.sectionDescription}>
+                Upload required documents for verification
+              </Text>
+
               <TouchableOpacity 
-                style={styles.addImageButton}
-                onPress={pickImage}
+                style={[styles.documentButton, insuranceDoc && { backgroundColor: '#34a853', borderColor: '#34a853' }]}
+                onPress={() => uploadDocument('Insurance')}
               >
-                <Ionicons name="add" size={40} color="#1a73e8" />
-                <Text style={styles.addImageText}>Add Photo</Text>
+                <Ionicons name="document-text-outline" size={24} color="#4facfe" />
+                <Text style={[styles.documentButtonText, insuranceDoc && { color: '#fff' }]}>Upload Insurance</Text>
+                <Ionicons name="chevron-forward" size={24} color="#5f6368" />
               </TouchableOpacity>
-            )}
-          </ScrollView>
-        </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Car Details</Text>
-          
-          <Text style={styles.inputLabel}>Make *</Text>
-          <TextInput
-            style={styles.input}
-            value={carData.make}
-            onChangeText={(text) => handleInputChange('make', text)}
-            placeholder="e.g. Toyota"
-          />
+              {insuranceDoc && (
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 16, marginBottom: 4 }}>
+                  <Ionicons name="document" size={18} color="#34a853" />
+                  <Text style={{ marginLeft: 8, color: '#34a853', fontSize: 14 }}>{insuranceDoc.name}</Text>
+                </View>
+              )}
 
-          <Text style={styles.inputLabel}>Model *</Text>
-          <TextInput
-            style={styles.input}
-            value={carData.model}
-            onChangeText={(text) => handleInputChange('model', text)}
-            placeholder="e.g. Camry"
-          />
+              <TouchableOpacity 
+                style={[styles.documentButton, registrationDoc && { backgroundColor: '#34a853', borderColor: '#34a853' }]}
+                onPress={() => uploadDocument('Registration')}
+              >
+                <Ionicons name="card-outline" size={24} color="#4facfe" />
+                <Text style={[styles.documentButtonText, registrationDoc && { color: '#fff' }]}>Upload Registration</Text>
+                <Ionicons name="chevron-forward" size={24} color="#5f6368" />
+              </TouchableOpacity>
 
-          <Text style={styles.inputLabel}>Year *</Text>
-          <TextInput
-            style={styles.input}
-            value={carData.year}
-            onChangeText={(text) => handleInputChange('year', text)}
-            placeholder="e.g. 2020"
-            keyboardType="number-pad"
-          />
-
-          <Text style={styles.inputLabel}>Description</Text>
-          <TextInput
-            style={[styles.input, styles.textArea]}
-            value={carData.description}
-            onChangeText={(text) => handleInputChange('description', text)}
-            placeholder="Describe your car, its features, condition, etc."
-            multiline
-            numberOfLines={4}
-            textAlignVertical="top"
-          />
-
-          <Text style={styles.inputLabel}>Price Per Day (USD) *</Text>
-          <TextInput
-            style={styles.input}
-            value={carData.pricePerDay}
-            onChangeText={(text) => handleInputChange('pricePerDay', text)}
-            placeholder="e.g. 45"
-            keyboardType="number-pad"
-          />
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Location</Text>
-          
-          <View style={styles.locationContainer}>
-            <Text style={styles.locationText}>
-              {carData.location.address}
-            </Text>
-            <TouchableOpacity 
-              style={styles.locationButton}
-              onPress={getCurrentLocation}
-            >
-              <Ionicons name="location" size={20} color="#fff" />
-              <Text style={styles.locationButtonText}>Set Current Location</Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.mapPlaceholder}>
-            <Image 
-              source={{ uri: 'https://api.a0.dev/assets/image?text=Map%20Location&aspect=16:9' }}
-              style={styles.mapImage}
-              resizeMode="cover"
-            />
-          </View>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Documents</Text>
-          <Text style={styles.sectionDescription}>
-            Upload required documents for verification
-          </Text>
-
-          <TouchableOpacity 
-            style={[styles.documentButton, insuranceDoc && { backgroundColor: '#34a853', borderColor: '#34a853' }]}
-            onPress={() => uploadDocument('Insurance')}
-          >
-            <Ionicons name="document-text-outline" size={24} color="#1a73e8" />
-            <Text style={[styles.documentButtonText, insuranceDoc && { color: '#fff' }]}>Upload Insurance</Text>
-            <Ionicons name="chevron-forward" size={24} color="#5f6368" />
-          </TouchableOpacity>
-
-          {insuranceDoc && (
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 16, marginBottom: 4 }}>
-              <Ionicons name="document" size={18} color="#34a853" />
-              <Text style={{ marginLeft: 8, color: '#34a853', fontSize: 14 }}>{insuranceDoc.name}</Text>
+              {registrationDoc && (
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 16, marginBottom: 4 }}>
+                  <Ionicons name="document" size={18} color="#34a853" />
+                  <Text style={{ marginLeft: 8, color: '#34a853', fontSize: 14 }}>{registrationDoc.name}</Text>
+                </View>
+              )}
             </View>
-          )}
 
-          <TouchableOpacity 
-            style={[styles.documentButton, registrationDoc && { backgroundColor: '#34a853', borderColor: '#34a853' }]}
-            onPress={() => uploadDocument('Registration')}
-          >
-            <Ionicons name="card-outline" size={24} color="#1a73e8" />
-            <Text style={[styles.documentButtonText, registrationDoc && { color: '#fff' }]}>Upload Registration</Text>
-            <Ionicons name="chevron-forward" size={24} color="#5f6368" />
-          </TouchableOpacity>
-
-          {registrationDoc && (
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 16, marginBottom: 4 }}>
-              <Ionicons name="document" size={18} color="#34a853" />
-              <Text style={{ marginLeft: 8, color: '#34a853', fontSize: 14 }}>{registrationDoc.name}</Text>
-            </View>
-          )}
-        </View>
-
-        <TouchableOpacity 
-          style={styles.submitButton}
-          onPress={handleSubmit}
-          disabled={loading}
-        >
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <>
-              <Ionicons name="cloud-upload-outline" size={20} color="#fff" />
-              <Text style={styles.submitButtonText}>List on IPFS</Text>
-            </>
-          )}
-        </TouchableOpacity>
-      </ScrollView>
-    </SafeAreaView>
+            <GradientButton onPress={handleSubmit} disabled={loading} style={{ margin: 16 }}>
+              {loading ? <ActivityIndicator color="#fff" /> : 'Create Listing'}
+            </GradientButton>
+          </GlassCard>
+        </ScrollView>
+      </SafeAreaView>
+    </GradientBackground>
   );
 }
 
+const { width } = Dimensions.get('window');
+
 const styles = StyleSheet.create({
-  container: {
+  gradientBg: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    minHeight: '100%',
+  },
+  glassCard: {
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    borderRadius: 32,
+    padding: 0,
+    shadowColor: '#4facfe',
+    shadowOpacity: 0.12,
+    shadowRadius: 24,
+    elevation: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.25)',
   },
   header: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e8eaed',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
   },
   backButton: {
     padding: 8,
@@ -343,18 +391,22 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#1a73e8',
+    color: '#fff',
   },
   placeholder: {
     width: 40,
   },
   scrollView: {
     flex: 1,
+    padding: 16,
+  },
+  cardContainer: {
+    borderRadius: 24,
+    padding: 20,
+    marginBottom: 20,
   },
   section: {
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e8eaed',
+    marginBottom: 24,
   },
   sectionTitle: {
     fontSize: 18,
@@ -367,74 +419,77 @@ const styles = StyleSheet.create({
     color: '#5f6368',
     marginBottom: 16,
   },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    marginBottom: 8,
+    color: '#202124',
+    opacity: 0.8,
+  },
+  input: {
+    backgroundColor: 'rgba(255,255,255,0.7)',
+    borderWidth: 1,
+    borderColor: '#dadce0',
+    borderRadius: 12,
+    padding: 14,
+    fontSize: 16,
+    marginBottom: 16,
+    color: '#222',
+  },
+  textArea: {
+    height: 100,
+    textAlignVertical: 'top',
+  },
   imageScrollView: {
-    flexDirection: 'row',
-    marginVertical: 16,
+    marginBottom: 16,
   },
   imageContainer: {
     marginRight: 12,
     position: 'relative',
   },
   carImage: {
-    width: 150,
-    height: 100,
-    borderRadius: 8,
+    width: 120,
+    height: 80,
+    borderRadius: 12,
   },
   removeImageButton: {
     position: 'absolute',
-    top: -10,
-    right: -10,
+    top: -8,
+    right: -8,
     backgroundColor: '#fff',
     borderRadius: 12,
   },
   addImageButton: {
-    width: 150,
-    height: 100,
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: '#1a73e8',
-    borderStyle: 'dashed',
+    width: 120,
+    height: 80,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255,255,255,0.7)',
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#4facfe',
+    borderStyle: 'dashed',
   },
   addImageText: {
-    color: '#1a73e8',
+    fontSize: 12,
+    color: '#4facfe',
     marginTop: 4,
-  },
-  inputLabel: {
-    fontSize: 14,
-    fontWeight: '500',
-    marginBottom: 8,
-    marginTop: 16,
-    color: '#202124',
-  },
-  input: {
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#dadce0',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-  },
-  textArea: {
-    height: 100,
-    textAlignVertical: 'top',
   },
   locationContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    marginVertical: 16,
+    alignItems: 'center',
+    marginBottom: 16,
   },
   locationText: {
-    flex: 1,
     fontSize: 16,
     color: '#202124',
+    flex: 1,
   },
   locationButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1a73e8',
+    backgroundColor: '#4facfe',
     borderRadius: 8,
     paddingVertical: 8,
     paddingHorizontal: 12,
@@ -446,8 +501,8 @@ const styles = StyleSheet.create({
   },
   mapPlaceholder: {
     height: 150,
-    backgroundColor: '#e8eaed',
-    borderRadius: 8,
+    backgroundColor: 'rgba(255,255,255,0.7)',
+    borderRadius: 12,
     overflow: 'hidden',
   },
   mapImage: {
@@ -457,8 +512,8 @@ const styles = StyleSheet.create({
   documentButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 8,
+    backgroundColor: 'rgba(255,255,255,0.7)',
+    borderRadius: 12,
     padding: 16,
     marginVertical: 8,
     borderWidth: 1,
@@ -470,19 +525,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#202124',
   },
-  submitButton: {
-    flexDirection: 'row',
+  gradientButton: {
+    borderRadius: 16,
+    paddingVertical: 16,
     alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#1a73e8',
-    borderRadius: 8,
-    padding: 16,
-    margin: 16,
+    shadowColor: '#4facfe',
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    elevation: 3,
   },
-  submitButtonText: {
+  gradientButtonText: {
     color: '#fff',
-    fontSize: 16,
     fontWeight: 'bold',
-    marginLeft: 8,
+    fontSize: 18,
+    letterSpacing: 0.5,
   },
 });

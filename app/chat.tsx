@@ -1,24 +1,61 @@
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { ReactNode, useEffect, useRef, useState } from 'react';
 import {
-    FlatList,
-    Image,
-    KeyboardAvoidingView,
-    Platform,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+
+// Gradient background wrapper
+function GradientBackground({ children }: { children: ReactNode }) {
+  return (
+    <LinearGradient
+      colors={["#4facfe", "#00f2fe"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.gradientBg}
+    >
+      {children}
+    </LinearGradient>
+  );
+}
+
+// Glassmorphic card
+function GlassCard({ children, style }: { children: ReactNode; style?: any }) {
+  return (
+    <View style={[styles.glassCard, style]}>{children}</View>
+  );
+}
+
+// Gradient button
+function GradientButton({ children, onPress, style, disabled }: { children: ReactNode; onPress: () => void; style?: any; disabled?: boolean }) {
+  return (
+    <TouchableOpacity onPress={onPress} style={style} disabled={disabled} activeOpacity={0.85}>
+      <LinearGradient
+        colors={["#4facfe", "#00f2fe"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[styles.gradientButton, disabled && { opacity: 0.6 }]}
+      >
+        <Text style={styles.gradientButtonText}>{children}</Text>
+      </LinearGradient>
+    </TouchableOpacity>
+  );
+}
 
 interface Message {
   id: string;
   text: string;
   sender: 'user' | 'owner';
-  timestamp: string;
+  timestamp: Date;
 }
 
 interface Car {
@@ -26,233 +63,204 @@ interface Car {
   make: string;
   model: string;
   year: string;
+  pricePerDay: string;
   owner: {
     name: string;
     avatar: string;
   };
 }
 
-// Mock data for messages
-const INITIAL_MESSAGES: Message[] = [
-  {
-    id: '1',
-    text: 'Hi there! I\'m interested in renting your car.',
-    sender: 'user',
-    timestamp: new Date(Date.now() - 3600000).toISOString(),
-  },
-  {
-    id: '2',
-    text: 'Hello! Thanks for your interest. When would you like to rent it?',
-    sender: 'owner',
-    timestamp: new Date(Date.now() - 3500000).toISOString(),
-  },
-  {
-    id: '3',
-    text: 'I\'m looking for next weekend, from Friday to Sunday.',
-    sender: 'user',
-    timestamp: new Date(Date.now() - 3400000).toISOString(),
-  },
-  {
-    id: '4',
-    text: 'That should work! The car is available then.',
-    sender: 'owner',
-    timestamp: new Date(Date.now() - 3300000).toISOString(),
-  },
-];
-
 export default function ChatScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
-  const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
-  const [inputText, setInputText] = useState('');
-  const flatListRef = useRef<FlatList<Message>>(null);
-  
-  // Get car data from params
-  let car: Car;
-  try {
-    car = params.car ? JSON.parse(params.car as string) : {
-      id: 'default',
-      make: 'Toyota',
-      model: 'Camry',
-      year: '2020',
-      owner: {
-        name: 'John Doe',
-        avatar: 'https://api.a0.dev/assets/image?text=JD&aspect=1:1',
-      }
-    };
-  } catch {
-    car = {
-      id: 'default',
-      make: 'Toyota',
-      model: 'Camry',
-      year: '2020',
-      owner: {
-        name: 'John Doe',
-        avatar: 'https://api.a0.dev/assets/image?text=JD&aspect=1:1',
-      }
-    };
-  }
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [newMessage, setNewMessage] = useState('');
+  const flatListRef = useRef<FlatList>(null);
+
+  // Parse car data from params
+  const car: Car = params.car ? JSON.parse(params.car as string) : {
+    id: '1',
+    make: 'Toyota',
+    model: 'Camry',
+    year: '2020',
+    pricePerDay: '45',
+    owner: {
+      name: 'John Doe',
+      avatar: 'https://api.a0.dev/assets/image?text=JD&aspect=1:1'
+    }
+  };
 
   useEffect(() => {
-    // In a real app, we would connect to libp2p or a messaging service
-    // For demo purposes, we'll just scroll to the bottom of the messages
-    if (flatListRef.current) {
-      setTimeout(() => {
-        flatListRef.current?.scrollToEnd({ animated: true });
-      }, 100);
-    }
-  }, [messages]);
+    // Initialize with some mock messages
+    const initialMessages: Message[] = [
+      {
+        id: '1',
+        text: 'Hi! I\'m interested in renting your car. Is it still available?',
+        sender: 'user',
+        timestamp: new Date(Date.now() - 3600000)
+      },
+      {
+        id: '2',
+        text: 'Yes, it\'s available! When would you like to pick it up?',
+        sender: 'owner',
+        timestamp: new Date(Date.now() - 3000000)
+      },
+      {
+        id: '3',
+        text: 'I was thinking this weekend. What\'s the process like?',
+        sender: 'user',
+        timestamp: new Date(Date.now() - 2400000)
+      },
+      {
+        id: '4',
+        text: 'Great! We can meet at the location. I\'ll need to see your license and we can sign the rental agreement.',
+        sender: 'owner',
+        timestamp: new Date(Date.now() - 1800000)
+      }
+    ];
+    setMessages(initialMessages);
+  }, []);
 
   const sendMessage = () => {
-    if (!inputText.trim()) return;
-    
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      text: inputText.trim(),
-      sender: 'user',
-      timestamp: new Date().toISOString(),
-    };
-    
-    setMessages([...messages, newMessage]);
-    setInputText('');
-    
-    // Simulate owner response
-    setTimeout(() => {
-      const responseOptions = [
-        "Sure, that sounds good!",
-        "Let me check my schedule and get back to you.",
-        "Would you like to see more photos of the car?",
-        "Do you have any specific questions about the car?",
-        "I can offer a discount for longer rentals.",
-      ];
-      
-      const randomResponse = responseOptions[Math.floor(Math.random() * responseOptions.length)];
-      
-      const ownerResponse: Message = {
-        id: (Date.now() + 1).toString(),
-        text: randomResponse,
-        sender: 'owner',
-        timestamp: new Date().toISOString(),
+    if (newMessage.trim()) {
+      const message: Message = {
+        id: Date.now().toString(),
+        text: newMessage.trim(),
+        sender: 'user',
+        timestamp: new Date()
       };
-      
-      setMessages(prevMessages => [...prevMessages, ownerResponse]);
-    }, 1500);
+      setMessages([...messages, message]);
+      setNewMessage('');
+
+      // Simulate owner response
+      setTimeout(() => {
+        const responses = [
+          'That sounds good!',
+          'I\'ll get back to you shortly.',
+          'Perfect timing!',
+          'Let me check my schedule.',
+          'Great choice!'
+        ];
+        const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+        const ownerMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          text: randomResponse,
+          sender: 'owner',
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, ownerMessage]);
+      }, 1000 + Math.random() * 2000);
+    }
   };
 
-  const formatTime = (timestamp: string) => {
-    const date = new Date(timestamp);
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
-
-  const renderMessage = ({ item }: { item: Message }) => {
-    const isUser = item.sender === 'user';
-    
-    return (
+  const renderMessage = ({ item }: { item: Message }) => (
+    <View style={[
+      styles.messageContainer,
+      item.sender === 'user' ? styles.userMessage : styles.ownerMessage
+    ]}>
       <View style={[
-        styles.messageContainer,
-        isUser ? styles.userMessageContainer : styles.ownerMessageContainer
+        styles.messageBubble,
+        item.sender === 'user' ? styles.userBubble : styles.ownerBubble
       ]}>
-        {!isUser && (
-          <Image 
-            source={{ uri: car.owner.avatar }} 
-            style={styles.avatar}
-          />
-        )}
-        <View
-          style={[
-            styles.messageBubble,
-            isUser ? styles.userMessageBubble : styles.ownerMessageBubble,
-          ]}
-        >
-          <Text style={[styles.messageText, isUser && styles.userMessageText]}>
-            {item.text}
-          </Text>
-          <Text style={styles.messageTime}>{formatTime(item.timestamp)}</Text>
-        </View>
+        <Text style={[
+          styles.messageText,
+          item.sender === 'user' ? styles.userMessageText : styles.ownerMessageText
+        ]}>
+          {item.text}
+        </Text>
+        <Text style={styles.timestamp}>
+          {item.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+        </Text>
       </View>
-    );
-  };
+    </View>
+  );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity 
-          style={styles.backButton}
-          onPress={() => router.back()}
-        >
-          <Ionicons name="arrow-back" size={24} color="#1a73e8" />
-        </TouchableOpacity>
-        
-        <View style={styles.headerInfo}>
-          <Text style={styles.headerTitle}>
-            {car.owner.name}
-          </Text>
-          <Text style={styles.headerSubtitle}>
-            {car.year} {car.make} {car.model}
-          </Text>
-        </View>
-        
-        <TouchableOpacity style={styles.infoButton}>
-          <Ionicons name="information-circle-outline" size={24} color="#1a73e8" />
-        </TouchableOpacity>
-      </View>
-      
-      <FlatList
-        ref={flatListRef}
-        data={messages}
-        renderItem={renderMessage}
-        keyExtractor={item => item.id}
-        contentContainerStyle={styles.messagesList}
-        onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
-      />
-      
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
-        style={styles.inputContainer}
-      >
-        <View style={styles.inputWrapper}>
-          <TextInput
-            style={styles.input}
-            value={inputText}
-            onChangeText={setInputText}
-            placeholder="Type a message..."
-            multiline
-          />
+    <GradientBackground>
+      <SafeAreaView style={{ flex: 1 }}>
+        <View style={styles.header}>
           <TouchableOpacity 
-            style={[styles.sendButton, !inputText.trim() && styles.sendButtonDisabled]}
-            onPress={sendMessage}
-            disabled={!inputText.trim()}
+            style={styles.backButton}
+            onPress={() => router.back()}
           >
-            <Ionicons 
-              name="send" 
-              size={20} 
-              color={inputText.trim() ? "#fff" : "#a8c7fa"} 
-            />
+            <Ionicons name="arrow-back" size={24} color="#fff" />
+          </TouchableOpacity>
+          
+          <View style={styles.headerInfo}>
+            <Text style={styles.headerTitle}>
+              {car.owner.name}
+            </Text>
+            <Text style={styles.headerSubtitle}>
+              {car.year} {car.make} {car.model}
+            </Text>
+          </View>
+          
+          <TouchableOpacity style={styles.infoButton}>
+            <Ionicons name="information-circle-outline" size={24} color="#fff" />
           </TouchableOpacity>
         </View>
         
-        <Text style={styles.encryptionNote}>
-          <Ionicons name="lock-closed" size={12} color="#5f6368" /> End-to-end encrypted via libp2p
-        </Text>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+        <FlatList
+          ref={flatListRef}
+          data={messages}
+          renderItem={renderMessage}
+          keyExtractor={item => item.id}
+          contentContainerStyle={styles.messagesList}
+          onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
+        />
+        
+        <KeyboardAvoidingView 
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.inputContainer}
+        >
+          <GlassCard style={styles.inputCard}>
+            <TextInput
+              style={styles.textInput}
+              value={newMessage}
+              onChangeText={setNewMessage}
+              placeholder="Type a message..."
+              placeholderTextColor="#b0b0b0"
+              multiline
+            />
+            <TouchableOpacity 
+              style={styles.sendButton}
+              onPress={sendMessage}
+              disabled={!newMessage.trim()}
+            >
+              <Ionicons 
+                name="send" 
+                size={20} 
+                color={newMessage.trim() ? '#4facfe' : '#b0b0b0'} 
+              />
+            </TouchableOpacity>
+          </GlassCard>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </GradientBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  gradientBg: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    minHeight: '100%',
+  },
+  glassCard: {
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    borderRadius: 32,
+    padding: 0,
+    shadowColor: '#4facfe',
+    shadowOpacity: 0.12,
+    shadowRadius: 24,
+    elevation: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.25)',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e8eaed',
-    backgroundColor: '#fff',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
   },
   backButton: {
     padding: 8,
@@ -262,13 +270,14 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   headerTitle: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
-    color: '#202124',
+    color: '#fff',
   },
   headerSubtitle: {
     fontSize: 14,
-    color: '#5f6368',
+    color: 'rgba(255,255,255,0.8)',
+    marginTop: 2,
   },
   infoButton: {
     padding: 8,
@@ -277,84 +286,82 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   messageContainer: {
-    flexDirection: 'row',
     marginBottom: 16,
-    maxWidth: '80%',
   },
-  userMessageContainer: {
-    alignSelf: 'flex-end',
+  userMessage: {
+    alignItems: 'flex-end',
   },
-  ownerMessageContainer: {
-    alignSelf: 'flex-start',
-  },
-  avatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    marginRight: 8,
+  ownerMessage: {
+    alignItems: 'flex-start',
   },
   messageBubble: {
+    maxWidth: '80%',
     padding: 12,
-    borderRadius: 16,
+    borderRadius: 20,
   },
-  userMessageBubble: {
-    backgroundColor: '#1a73e8',
+  userBubble: {
+    backgroundColor: '#4facfe',
     borderBottomRightRadius: 4,
   },
-  ownerMessageBubble: {
-    backgroundColor: '#fff',
+  ownerBubble: {
+    backgroundColor: 'rgba(255,255,255,0.9)',
     borderBottomLeftRadius: 4,
-    borderWidth: 1,
-    borderColor: '#e8eaed',
   },
   messageText: {
     fontSize: 16,
-    color: '#202124',
+    lineHeight: 20,
   },
   userMessageText: {
     color: '#fff',
   },
-  messageTime: {
+  ownerMessageText: {
+    color: '#202124',
+  },
+  timestamp: {
     fontSize: 12,
-    color: '#5f6368',
-    alignSelf: 'flex-end',
+    color: 'rgba(255,255,255,0.7)',
     marginTop: 4,
+    alignSelf: 'flex-end',
   },
   inputContainer: {
-    borderTopWidth: 1,
-    borderTopColor: '#e8eaed',
-    padding: 12,
-    backgroundColor: '#fff',
+    padding: 16,
   },
-  inputWrapper: {
+  inputCard: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-end',
+    padding: 12,
+    borderRadius: 24,
   },
-  input: {
+  textInput: {
     flex: 1,
-    backgroundColor: '#f1f3f4',
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    maxHeight: 100,
     fontSize: 16,
+    color: '#202124',
+    maxHeight: 100,
+    paddingHorizontal: 0,
+    paddingVertical: 0,
   },
   sendButton: {
-    backgroundColor: '#1a73e8',
     width: 40,
     height: 40,
     borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.3)',
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: 8,
   },
-  sendButtonDisabled: {
-    backgroundColor: '#e8f0fe',
+  gradientButton: {
+    borderRadius: 16,
+    paddingVertical: 16,
+    alignItems: 'center',
+    shadowColor: '#4facfe',
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    elevation: 3,
   },
-  encryptionNote: {
-    fontSize: 12,
-    color: '#5f6368',
-    textAlign: 'center',
-    marginTop: 8,
+  gradientButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 18,
+    letterSpacing: 0.5,
   },
 });
