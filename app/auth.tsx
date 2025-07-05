@@ -6,6 +6,7 @@ import {
   Alert,
   Dimensions,
   Image,
+  Pressable,
   StyleSheet,
   Text,
   TextInput,
@@ -13,6 +14,7 @@ import {
   View
 } from 'react-native';
 // @ts-ignore: If you haven't installed, run: expo install react-native-linear-gradient
+import { useAppKit } from '@reown/appkit-wagmi-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useWallet } from './contexts/WalletContext';
@@ -60,6 +62,7 @@ export default function AuthScreen() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const { isConnected, address, connect, disconnect, isLoading: walletLoading } = useWallet();
+  const { open } = useAppKit();
 
   useEffect(() => {
     if (authMethod === 'wallet' && isConnected) {
@@ -134,18 +137,11 @@ export default function AuthScreen() {
               </View>
             ) : (
               <View style={styles.walletContainer}>
-                {isConnected ? (
-                  <View style={{ alignItems: 'center', marginBottom: 16 }}>
-                    <Text style={{ fontSize: 16, color: '#4facfe', fontWeight: 'bold' }}>Wallet Connected</Text>
-                    <Text style={{ fontSize: 14, color: '#222', marginTop: 4 }}>{address?.slice(0, 6)}...{address?.slice(-4)}</Text>
-                    <TouchableOpacity style={styles.disconnectButton} onPress={disconnect}>
-                      <Text style={styles.disconnectButtonText}>Disconnect</Text>
-                    </TouchableOpacity>
-                  </View>
-                ) : null}
-                <GradientButton onPress={connect} disabled={walletLoading || isConnected} style={{ marginTop: 8 }}>
-                  {walletLoading ? <ActivityIndicator color="#fff" /> : (isConnected ? 'Wallet Connected' : 'Connect Wallet')}
-                </GradientButton>
+                <View style={{ marginTop: 16 }}>
+                  <Pressable style={styles.connectBtn} onPress={() => open()}>
+                    <Text style={styles.connectText}>Connect Wallet</Text>
+                  </Pressable>
+                </View>
               </View>
             )}
             <View style={styles.footer}>
@@ -339,4 +335,11 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
   },
+  connectBtn: {
+    backgroundColor: '#0066FF',
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  connectText: { color: 'white', fontSize: 16, fontWeight: '600' },
 });
