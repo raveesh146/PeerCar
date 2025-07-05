@@ -17,6 +17,7 @@ import {
   View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useCarData } from './contexts/CarDataContext';
 import { useWallet } from './contexts/WalletContext';
 
 // Gradient background wrapper
@@ -77,6 +78,7 @@ const CONTRACT_ABI = ABI
 export default function CarListingScreen() {
   const router = useRouter();
   const { signer, isConnected, connect, disconnect, address, isLoading: walletLoading } = useWallet();
+  const { addCar } = useCarData();
   const [loading, setLoading] = useState(false);
   const [images, setImages] = useState<string[]>([]);
   const [insuranceDoc, setInsuranceDoc] = useState<{ name: string; uri: string } | null>(null);
@@ -356,6 +358,28 @@ export default function CarListingScreen() {
         ]
       );
       
+      // Create the new car listing object
+      const newCar = {
+        id: `car-${Date.now()}`, // Generate unique ID
+        name: `${carData.make} ${carData.model} ${carData.year}`,
+        make: carData.make,
+        model: carData.model,
+        year: carData.year,
+        pricePerDay: carData.pricePerDay,
+        location: carData.location.address,
+        image: images[0] || 'https://api.a0.dev/assets/image?text=Car&aspect=16:9',
+        nftId: '#1',
+        owner: address?.slice(0, 6) + '...' + address?.slice(-4) || 'Unknown',
+        isAvailable: true,
+        description: carData.description,
+        images: images,
+        metadataCid: metadataCid,
+        transactionHash: receipt.transactionHash
+      };
+
+      // Add the new car to the context
+      addCar(newCar);
+
       // Auto-redirect after 3 seconds
       setTimeout(() => {
         router.push('/marketplace');

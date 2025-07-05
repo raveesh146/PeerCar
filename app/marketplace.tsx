@@ -3,13 +3,13 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React, { ReactNode, useState } from 'react';
 import {
-	Dimensions,
-	Image,
-	ScrollView,
-	StyleSheet,
-	Text,
-	TouchableOpacity,
-	View
+    Dimensions,
+    Image,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CarListing, useCarData } from './contexts/CarDataContext';
