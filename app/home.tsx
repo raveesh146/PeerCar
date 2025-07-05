@@ -81,7 +81,7 @@ export default function HomeScreen() {
               </GradientButton>
             </View>
             <View style={styles.footer}>
-              <Text style={styles.footerText}>Powered by IPFS & Decentralized Technology</Text>
+              <Text style={styles.footerText}>Powered by FileCoin Contracts and Web3Storage</Text>
             </View>
           </GlassCard>
         </View>

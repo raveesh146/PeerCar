@@ -93,7 +93,7 @@ export default function AuthScreen() {
                 style={styles.logo}
               />
               <Text style={styles.appName}>PeerCar</Text>
-              <Text style={styles.tagline}>Decentralized Peer-to-Peer Car Rentals</Text>
+              <Text style={styles.tagline}>Decentralized Peer-to-Peer Car Rentals Powered by FileCoin</Text>
             </View>
             <View style={styles.tabContainer}>
               <TouchableOpacity
