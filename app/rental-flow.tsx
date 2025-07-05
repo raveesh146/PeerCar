@@ -82,10 +82,8 @@ export default function RentalFlowScreen() {
   const [formData, setFormData] = useState({
     startDate: '',
     endDate: '',
-    pickupLocation: '',
-    dropoffLocation: '',
-    driverLicense: '',
-    insuranceInfo: ''
+    driverLicense: 'D1234567',
+    insuranceInfo: 'Geico Policy #A1B2C3D4',
   });
 
   const DEMO_USDFC_BALANCE = 1000;
@@ -140,10 +138,10 @@ export default function RentalFlowScreen() {
       Alert.alert(
         '🎉 Rental Confirmed!',
         `Your rental has been processed on Filecoin!\n\n` +
-        `📋 Transaction Hash: 0x1234...abcd\n` +
-        `🚗 Car: ${rentalDetails.carName}\n` +
-        `📅 Duration: ${rentalDetails.totalDays} days\n` +
-        `💰 Total: $${rentalDetails.totalCost}\n\n` +
+        `📋 Transaction Hash: 0x8f3a...b7c2\n` +
+        `🚗 Car: Tesla Model 3 2022\n` +
+        `📅 Duration: 3 days\n` +
+        `💰 Total: $240.00\n\n` +
         `The car owner will be notified and you can arrange pickup!`,
         [
           {
@@ -227,39 +225,6 @@ export default function RentalFlowScreen() {
           </Text>
         </View>
       )}
-    </GlassCard>
-  );
-
-  const renderStep2 = () => (
-    <GlassCard style={styles.stepCard}>
-      <Text style={styles.stepTitle}>Step 2: Pickup & Dropoff</Text>
-      
-      <View style={styles.inputGroup}>
-        <Text style={styles.inputLabel}>Pickup Location</Text>
-        <TextInput
-          style={styles.textInput}
-          placeholder="Enter pickup address"
-          value={formData.pickupLocation}
-          onChangeText={(text) => setFormData(prev => ({ ...prev, pickupLocation: text }))}
-        />
-      </View>
-
-      <View style={styles.inputGroup}>
-        <Text style={styles.inputLabel}>Dropoff Location</Text>
-        <TextInput
-          style={styles.textInput}
-          placeholder="Enter dropoff address"
-          value={formData.dropoffLocation}
-          onChangeText={(text) => setFormData(prev => ({ ...prev, dropoffLocation: text }))}
-        />
-      </View>
-
-      <View style={styles.infoCard}>
-        <Ionicons name="information-circle" size={20} color="#4facfe" />
-        <Text style={styles.infoText}>
-          You'll coordinate pickup details with the car owner after booking confirmation.
-        </Text>
-      </View>
     </GlassCard>
   );
 
@@ -361,9 +326,8 @@ export default function RentalFlowScreen() {
   const renderCurrentStep = () => {
     switch (currentStep) {
       case 1: return renderStep1();
-      case 2: return renderStep2();
-      case 3: return renderStep3();
-      case 4: return renderStep4();
+      case 2: return renderStep3();
+      case 3: return renderStep4();
       default: return renderStep1();
     }
   };

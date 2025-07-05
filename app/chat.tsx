@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { ReactNode, useEffect, useRef, useState } from 'react';
+import React, { ReactNode, useRef, useState } from 'react';
 import {
   FlatList,
   KeyboardAvoidingView,
@@ -90,36 +90,25 @@ export default function ChatScreen() {
     }
   };
 
-  useEffect(() => {
-    // Initialize with some mock messages
-    const initialMessages: Message[] = [
-      {
-        id: '1',
-        text: 'Hi! I\'m interested in renting your car. Is it still available?',
-        sender: 'user',
-        timestamp: new Date(Date.now() - 3600000)
-      },
-      {
-        id: '2',
-        text: 'Yes, it\'s available! When would you like to pick it up?',
-        sender: 'owner',
-        timestamp: new Date(Date.now() - 3000000)
-      },
-      {
-        id: '3',
-        text: 'I was thinking this weekend. What\'s the process like?',
-        sender: 'user',
-        timestamp: new Date(Date.now() - 2400000)
-      },
-      {
-        id: '4',
-        text: 'Great! We can meet at the location. I\'ll need to see your license and we can sign the rental agreement.',
-        sender: 'owner',
-        timestamp: new Date(Date.now() - 1800000)
-      }
-    ];
-    setMessages(initialMessages);
-  }, []);
+  // Predefined Q&A pairs for natural hackathon demo
+  const qaPairs: { question: RegExp; answer: string }[] = [
+    { question: /available|still available/i, answer: "Yes, the car is available for your selected dates!" },
+    { question: /documents|docs|paper/i, answer: "You'll need a valid driver's license and proof of insurance." },
+    { question: /pickup|where/i, answer: "Pickup is at the address shown in the listing. Let me know if you need directions!" },
+    { question: /price|cost|fee/i, answer: `The price is $${car.pricePerDay} per day, as listed.` },
+    { question: /fuel|gas/i, answer: "The car will have a full tank. Please return it the same way." },
+    { question: /insurance/i, answer: "Yes, insurance is required. Please upload your proof during the rental process." },
+    { question: /extend|extension/i, answer: "If you need to extend, just let me know in advance!" },
+    { question: /thank/i, answer: "You're welcome! Looking forward to your rental." },
+  ];
+
+  const fallbackResponses = [
+    "Let me know if you have any other questions!",
+    "Happy to help!",
+    "Sounds good!",
+    "I'll get back to you shortly.",
+    "Great! Looking forward to it."
+  ];
 
   const sendMessage = () => {
     if (newMessage.trim()) {
@@ -129,27 +118,26 @@ export default function ChatScreen() {
         sender: 'user',
         timestamp: new Date()
       };
-      setMessages([...messages, message]);
+      setMessages(prev => [...prev, message]);
       setNewMessage('');
 
-      // Simulate owner response
+      // Simulate owner response based on question
       setTimeout(() => {
-        const responses = [
-          'That sounds good!',
-          'I\'ll get back to you shortly.',
-          'Perfect timing!',
-          'Let me check my schedule.',
-          'Great choice!'
-        ];
-        const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+        let response = fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
+        for (const qa of qaPairs) {
+          if (qa.question.test(message.text)) {
+            response = qa.answer;
+            break;
+          }
+        }
         const ownerMessage: Message = {
           id: (Date.now() + 1).toString(),
-          text: randomResponse,
+          text: response,
           sender: 'owner',
           timestamp: new Date()
         };
         setMessages(prev => [...prev, ownerMessage]);
-      }, 1000 + Math.random() * 2000);
+      }, 1000 + Math.random() * 1000);
     }
   };
 

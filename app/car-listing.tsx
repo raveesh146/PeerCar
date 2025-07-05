@@ -86,13 +86,13 @@ export default function CarListingScreen() {
   const [carData, setCarData] = useState<CarData>({
     make: '',
     model: '',
-    year: '',
-    description: '',
-    pricePerDay: '',
+    year: '2022',
+    description: 'Long range, autopilot, clean and well maintained. Great for city and highway trips.',
+    pricePerDay: '80',
     location: {
-      latitude: 37.7749,
-      longitude: -122.4194,
-      address: 'San Francisco, CA'
+      latitude: 34.0522,
+      longitude: -118.2437,
+      address: '1234 Sunset Blvd, Los Angeles, CA'
     }
   });
 
