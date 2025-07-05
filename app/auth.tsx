@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { ReactNode, useState } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -13,10 +13,9 @@ import {
   View
 } from 'react-native';
 // @ts-ignore: If you haven't installed, run: expo install react-native-linear-gradient
-import * as AuthSession from 'expo-auth-session';
 import { LinearGradient } from 'expo-linear-gradient';
-import * as WebBrowser from 'expo-web-browser';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useWallet } from './contexts/WalletContext';
 
 // Gradient background wrapper
 function GradientBackground({ children }: { children: ReactNode }) {
@@ -60,31 +59,13 @@ export default function AuthScreen() {
   const [authMethod, setAuthMethod] = useState<'email' | 'wallet'>('email');
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
-  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const { isConnected, address, connect, disconnect, isLoading: walletLoading } = useWallet();
 
-  // Handle Flow wallet connect
-  const handleFlowWalletAuth = async () => {
-    setLoading(true);
-    try {
-      // Use Expo proxy redirect for Expo Go (no arguments needed)
-      const redirectUrl = AuthSession.makeRedirectUri();
-      const discoveryUrl = `https://fcl-discovery.onflow.org/testnet/authn?redirectUrl=${encodeURIComponent(redirectUrl)}`;
-      // Open the Discovery page in the browser
-      const result = await WebBrowser.openAuthSessionAsync(discoveryUrl, redirectUrl);
-      if (result.type === 'success' && result.url) {
-        // Extract wallet address from the returned URL (if present)
-        const match = result.url.match(/[?&]address=([^&]+)/);
-        if (match && match[1]) {
-          setWalletAddress(decodeURIComponent(match[1]));
-        } else {
-          Alert.alert('Wallet Connect', 'No wallet address found in redirect.');
-        }
-      }
-    } catch (e) {
-      Alert.alert('Wallet Connect Error', 'Failed to connect Flow wallet.');
+  useEffect(() => {
+    if (authMethod === 'wallet' && isConnected) {
+      router.push('/home');
     }
-    setLoading(false);
-  };
+  }, [isConnected, authMethod]);
 
   const handleEmailAuth = async () => {
     if (!email.trim() || !email.includes('@')) {
@@ -153,14 +134,17 @@ export default function AuthScreen() {
               </View>
             ) : (
               <View style={styles.walletContainer}>
-                {walletAddress ? (
+                {isConnected ? (
                   <View style={{ alignItems: 'center', marginBottom: 16 }}>
                     <Text style={{ fontSize: 16, color: '#4facfe', fontWeight: 'bold' }}>Wallet Connected</Text>
-                    <Text style={{ fontSize: 14, color: '#222', marginTop: 4 }}>{walletAddress}</Text>
+                    <Text style={{ fontSize: 14, color: '#222', marginTop: 4 }}>{address?.slice(0, 6)}...{address?.slice(-4)}</Text>
+                    <TouchableOpacity style={styles.disconnectButton} onPress={disconnect}>
+                      <Text style={styles.disconnectButtonText}>Disconnect</Text>
+                    </TouchableOpacity>
                   </View>
                 ) : null}
-                <GradientButton onPress={handleFlowWalletAuth} disabled={loading || !!walletAddress} style={{ marginTop: 8 }}>
-                  {loading ? <ActivityIndicator color="#fff" /> : (walletAddress ? 'Wallet Connected' : 'Connect Flow Wallet')}
+                <GradientButton onPress={connect} disabled={walletLoading || isConnected} style={{ marginTop: 8 }}>
+                  {walletLoading ? <ActivityIndicator color="#fff" /> : (isConnected ? 'Wallet Connected' : 'Connect Wallet')}
                 </GradientButton>
               </View>
             )}
@@ -344,5 +328,15 @@ const styles = StyleSheet.create({
     color: '#5f6368',
     textAlign: 'center',
     opacity: 0.8,
+  },
+  disconnectButton: {
+    backgroundColor: '#4facfe',
+    padding: 8,
+    borderRadius: 8,
+    marginTop: 8,
+  },
+  disconnectButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
 });

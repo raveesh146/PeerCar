@@ -51,6 +51,10 @@ export default function HomeScreen() {
     router.push('/car-listing');
   };
 
+  const handleMarketplacePress = () => {
+    router.push('/marketplace');
+  };
+
   return (
     <GradientBackground>
       <SafeAreaView style={{ flex: 1 }}>
@@ -69,8 +73,11 @@ export default function HomeScreen() {
               <GradientButton onPress={handleRenterPress} style={{ marginBottom: 16 }}>
                 I want to rent a car
               </GradientButton>
-              <GradientButton onPress={handleListerPress}>
+              <GradientButton onPress={handleListerPress} style={{ marginBottom: 16 }}>
                 I want to list my car
+              </GradientButton>
+              <GradientButton onPress={handleMarketplacePress}>
+                Browse Car Marketplace
               </GradientButton>
             </View>
             <View style={styles.footer}>
