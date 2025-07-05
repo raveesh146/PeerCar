@@ -36,6 +36,22 @@ function GlassCard({ children, style }: { children: ReactNode; style?: any }) {
   );
 }
 
+// Gradient button
+function GradientButton({ children, onPress, style, disabled }: { children: ReactNode; onPress: () => void; style?: any; disabled?: boolean }) {
+  return (
+    <TouchableOpacity onPress={onPress} style={style} disabled={disabled} activeOpacity={0.85}>
+      <LinearGradient
+        colors={["#4facfe", "#00f2fe"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[styles.gradientButton, disabled && { opacity: 0.6 }]}
+      >
+        <Text style={styles.gradientButtonText}>{children}</Text>
+      </LinearGradient>
+    </TouchableOpacity>
+  );
+}
+
 interface RentalDetails {
   carId: string;
   carName: string;
@@ -72,6 +88,9 @@ export default function RentalFlowScreen() {
     insuranceInfo: ''
   });
 
+  const DEMO_USDFC_BALANCE = 1000;
+  const [usdfcApproved, setUsdfcApproved] = useState(false);
+
   const calculateRental = () => {
     if (formData.startDate && formData.endDate) {
       const start = new Date(formData.startDate);
@@ -97,7 +116,23 @@ export default function RentalFlowScreen() {
     setCurrentStep(prev => prev + 1);
   };
 
+  const handleApproveUSDFC = () => {
+    setTimeout(() => {
+      setUsdfcApproved(true);
+      Alert.alert('USDFC Approved!', 'You have approved the contract to spend your USDFC.');
+    }, 500);
+  };
+
   const handleConfirmRental = async () => {
+    const rentalFee = rentalDetails.totalCost;
+    if (DEMO_USDFC_BALANCE < rentalFee) {
+      Alert.alert('Insufficient USDFC', `You need at least ${rentalFee} USDFC to rent this car.`);
+      return;
+    }
+    if (!usdfcApproved) {
+      Alert.alert('Approval Required', 'Please approve USDFC before renting.');
+      return;
+    }
     Alert.alert('Processing Rental', 'Initiating blockchain transaction...');
     
     // Simulate blockchain transaction
@@ -290,6 +325,16 @@ export default function RentalFlowScreen() {
           <Text style={styles.totalLabel}>Total Cost:</Text>
           <Text style={styles.totalValue}>${rentalDetails.totalCost + rentalDetails.deposit}</Text>
         </View>
+      </View>
+
+      <View style={styles.inputGroup}>
+        <Text style={styles.inputLabel}>Your USDFC Balance: {DEMO_USDFC_BALANCE}</Text>
+        {!usdfcApproved && (
+          <GradientButton onPress={handleApproveUSDFC} style={{ marginTop: 8 }}>
+            Approve USDFC
+          </GradientButton>
+        )}
+        {usdfcApproved && <Text style={{ color: 'green', marginTop: 8 }}>USDFC Approved!</Text>}
       </View>
 
       <View style={styles.infoCard}>
@@ -582,6 +627,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   confirmButtonText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 16,
+  },
+  gradientButton: {
+    borderRadius: 16,
+    padding: 16,
+    alignItems: 'center',
+  },
+  gradientButtonText: {
     color: '#fff',
     fontWeight: '600',
     fontSize: 16,

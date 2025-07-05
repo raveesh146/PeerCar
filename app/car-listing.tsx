@@ -96,6 +96,10 @@ export default function CarListingScreen() {
     }
   });
 
+  const DEMO_USDFC_BALANCE = 1000;
+  const LISTING_FEE = 10;
+  const [usdfcApproved, setUsdfcApproved] = useState(false);
+
   const handleInputChange = (field: keyof CarData, value: string) => {
     setCarData({
       ...carData,
@@ -280,7 +284,22 @@ export default function CarListingScreen() {
     }
   };
 
+  const handleApproveUSDFC = () => {
+    setTimeout(() => {
+      setUsdfcApproved(true);
+      Alert.alert('USDFC Approved!', 'You have approved the contract to spend your USDFC.');
+    }, 500);
+  };
+
   const handleSubmit = async () => {
+    if (DEMO_USDFC_BALANCE < LISTING_FEE) {
+      Alert.alert('Insufficient USDFC', `You need at least ${LISTING_FEE} USDFC to list a car.`);
+      return;
+    }
+    if (!usdfcApproved) {
+      Alert.alert('Approval Required', 'Please approve USDFC before listing.');
+      return;
+    }
     // Check wallet connection
     if (!isConnected) {
       Alert.alert('Wallet Not Connected', 'Please connect your wallet to create a listing');
@@ -591,6 +610,18 @@ export default function CarListingScreen() {
                   <Text style={{ marginLeft: 8, color: '#34a853', fontSize: 14 }}>{registrationDoc.name}</Text>
                 </View>
               )}
+            </View>
+
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Listing Fee</Text>
+              <Text style={styles.sectionDescription}>You must pay a one-time storage fee of {LISTING_FEE} USDFC to list your car.</Text>
+              <Text style={styles.sectionDescription}>Your USDFC Balance: {DEMO_USDFC_BALANCE}</Text>
+              {!usdfcApproved && (
+                <GradientButton onPress={handleApproveUSDFC} style={{ marginTop: 8 }}>
+                  Approve USDFC
+                </GradientButton>
+              )}
+              {usdfcApproved && <Text style={{ color: 'green', marginTop: 8 }}>USDFC Approved!</Text>}
             </View>
 
             <GradientButton onPress={handleSubmit} disabled={loading} style={{ margin: 16 }}>

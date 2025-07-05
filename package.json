@@ -24,6 +24,8 @@
     "@react-navigation/native": "^7.1.6",
     "@reown/appkit": "^1.7.12",
     "@reown/appkit-ethers-react-native": "^1.2.6",
+    "@reown/appkit-wagmi-react-native": "^1.2.6",
+    "@tanstack/react-query": "^5.81.5",
     "@walletconnect/ethereum-provider": "^2.21.4",
     "@walletconnect/modal-react-native": "^1.1.0",
     "@walletconnect/react-native-compat": "^2.21.4",
@@ -57,7 +59,7 @@
     "react-native-gesture-handler": "~2.24.0",
     "react-native-get-random-values": "~1.11.0",
     "react-native-maps": "1.20.1",
-    "react-native-modal": "14.0.0-rc.1",
+    "react-native-modal": "13.0.1",
     "react-native-passkeys": "^0.3.3",
     "react-native-reanimated": "~3.17.4",
     "react-native-safe-area-context": "5.4.0",
@@ -65,6 +67,8 @@
     "react-native-svg": "15.11.2",
     "react-native-web": "~0.20.0",
     "react-native-webview": "13.13.5",
+    "viem": "^2.31.7",
+    "wagmi": "^2.15.6",
     "web3.storage": "^4.5.5"
   },
   "devDependencies": {
