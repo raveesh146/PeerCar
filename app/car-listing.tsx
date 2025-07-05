@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { ethers } from 'ethers';
 import * as DocumentPicker from 'expo-document-picker';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
@@ -66,6 +67,11 @@ interface CarData {
     address: string;
   };
 }
+
+// --- Web3.Storage and contract config ---
+const WEB3STORAGE_TOKEN = 'z6MksZuHBpFqchjfDT7XWFCmmwagTewuQGAjxRT3FJnkDvKy'; // TODO: Replace with your token
+const CONTRACT_ADDRESS = 'YOUR_CONTRACT_ADDRESS'; // TODO: Replace with your contract address
+const CONTRACT_ABI = [/* YOUR_CONTRACT_ABI */]; // TODO: Replace with your contract ABI
 
 export default function CarListingScreen() {
   const router = useRouter();
@@ -145,39 +151,130 @@ export default function CarListingScreen() {
     }
   };
 
+  // Helper: upload a file (image, doc, or metadata) to Web3.Storage using HTTP API
+  const uploadToWeb3StorageHTTP = async (fileUri: string, fileName: string, mimeType: string = 'application/octet-stream') => {
+    const formData = new FormData();
+    // @ts-ignore: FormData types for React Native
+    formData.append('file', {
+      uri: fileUri,
+      name: fileName,
+      type: mimeType,
+    });
+
+    const response = await fetch('https://api.web3.storage/upload', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${WEB3STORAGE_TOKEN}`,
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to upload to Web3.Storage');
+    }
+
+    const data = await response.json();
+    return data.cid; // The returned CID
+  };
+
+  // Helper: upload metadata JSON to Web3.Storage using HTTP API
+  const uploadMetadataHTTP = async (metadata: any) => {
+    const blob = new Blob([JSON.stringify(metadata)], { type: 'application/json' });
+    const formData = new FormData();
+    formData.append('file', blob, 'metadata.json');
+
+    const response = await fetch('https://api.web3.storage/upload', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${WEB3STORAGE_TOKEN}`,
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to upload metadata to Web3.Storage');
+    }
+
+    const data = await response.json();
+    return data.cid;
+  };
+
+  // Helper: mint NFT via contract
+  const mintNFT = async (metadataCid: string) => {
+    // Connect to wallet (assume user has injected provider, e.g., MetaMask Mobile or WalletConnect)
+    // For demo: use ethers.getDefaultProvider (replace with real provider in production)
+    const provider = ethers.getDefaultProvider('https://filecoin-calibration.chainup.net/rpc/v1'); // FEVM testnet
+    // TODO: Replace with wallet signer (e.g., WalletConnect, MetaMask Mobile)
+    const signer = provider.getSigner();
+    const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+    // Call contract function (e.g., listCar or mint)
+    // Example: await contract.listCar(`ipfs://${metadataCid}`);
+    // TODO: Replace with your contract's mint/listCar function
+    return contract.listCar(`ipfs://${metadataCid}`);
+  };
+
   const handleSubmit = async () => {
     // Validate form
     if (!carData.make || !carData.model || !carData.year || !carData.pricePerDay) {
       Alert.alert('Missing Information', 'Please fill in all required fields');
       return;
     }
-
     if (images.length === 0) {
       Alert.alert('No Images', 'Please upload at least one image of your car');
       return;
     }
-
     setLoading(true);
-
     try {
-      // In a real app, we would upload to IPFS using nft.storage or web3.storage
-      // For demo purposes, we'll simulate the upload with a timeout
-      setTimeout(() => {
-        setLoading(false);
-        Alert.alert(
-          'Listing Created!', 
-          'Your car has been listed successfully and is now available for rent',
-          [
-            { 
-              text: 'OK', 
-              onPress: () => router.push('/') 
-            }
-          ]
-        );
-      }, 2000);
+      // 1. Upload images to Web3.Storage
+      Alert.alert('Uploading', 'Uploading images to Web3.Storage...');
+      const imageCids = [];
+      for (let i = 0; i < images.length; i++) {
+        const cid = await uploadToWeb3StorageHTTP(images[i], `car-image-${i}.png`, 'image/png');
+        imageCids.push(cid);
+      }
+      // 2. Upload documents to Web3.Storage
+      let insuranceCid = '';
+      let registrationCid = '';
+      if (insuranceDoc) {
+        Alert.alert('Uploading', 'Uploading insurance document...');
+        insuranceCid = await uploadToWeb3StorageHTTP(insuranceDoc.uri, insuranceDoc.name, 'application/pdf');
+      }
+      if (registrationDoc) {
+        Alert.alert('Uploading', 'Uploading registration document...');
+        registrationCid = await uploadToWeb3StorageHTTP(registrationDoc.uri, registrationDoc.name, 'application/pdf');
+      }
+      // 3. Create metadata JSON
+      const metadata = {
+        name: `${carData.make} ${carData.model} ${carData.year}`,
+        description: carData.description,
+        image: `ipfs://${imageCids[0]}`,
+        attributes: [
+          { trait_type: 'Make', value: carData.make },
+          { trait_type: 'Model', value: carData.model },
+          { trait_type: 'Year', value: carData.year },
+          { trait_type: 'PricePerDay', value: carData.pricePerDay },
+        ],
+        documents: [
+          insuranceDoc ? { type: 'Insurance', url: `ipfs://${insuranceCid}` } : null,
+          registrationDoc ? { type: 'Registration', url: `ipfs://${registrationCid}` } : null,
+        ].filter(Boolean),
+        location: carData.location,
+        images: imageCids.map(cid => `ipfs://${cid}`),
+      };
+      // 4. Upload metadata to Web3.Storage
+      Alert.alert('Uploading', 'Uploading metadata to Web3.Storage...');
+      const metadataCid = await uploadMetadataHTTP(metadata);
+      // 5. Mint NFT via contract
+      Alert.alert('Minting NFT', 'Minting NFT on Filecoin...');
+      await mintNFT(metadataCid);
+      setLoading(false);
+      Alert.alert('Listing Created!', 'Your car has been listed and NFT minted!', [
+        { text: 'OK', onPress: () => router.push('/') }
+      ]);
     } catch (error) {
       setLoading(false);
-      Alert.alert('Error', 'Failed to create listing. Please try again.');
+      Alert.alert('Error', 'Failed to create listing or mint NFT. Please try again.');
+      console.error(error);
     }
   };
 
