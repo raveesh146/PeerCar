@@ -10,7 +10,10 @@ export default function RootLayout() {
       <CarDataProvider>
         <SafeAreaView style={{ flex: 1 }}>
           <StatusBar style="dark" />
-          <Stack />
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack.Screen name="home" options={{ headerShown: false }} />
+          </Stack>
         </SafeAreaView>
       </CarDataProvider>
     </WalletProvider>
