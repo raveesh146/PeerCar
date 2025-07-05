@@ -13,7 +13,9 @@ import {
   View
 } from 'react-native';
 // @ts-ignore: If you haven't installed, run: expo install react-native-linear-gradient
+import * as AuthSession from 'expo-auth-session';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as WebBrowser from 'expo-web-browser';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Gradient background wrapper
@@ -58,20 +60,37 @@ export default function AuthScreen() {
   const [authMethod, setAuthMethod] = useState<'email' | 'wallet'>('email');
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+
+  // Handle Flow wallet connect
+  const handleFlowWalletAuth = async () => {
+    setLoading(true);
+    try {
+      // Use Expo proxy redirect for Expo Go (no arguments needed)
+      const redirectUrl = AuthSession.makeRedirectUri();
+      const discoveryUrl = `https://fcl-discovery.onflow.org/testnet/authn?redirectUrl=${encodeURIComponent(redirectUrl)}`;
+      // Open the Discovery page in the browser
+      const result = await WebBrowser.openAuthSessionAsync(discoveryUrl, redirectUrl);
+      if (result.type === 'success' && result.url) {
+        // Extract wallet address from the returned URL (if present)
+        const match = result.url.match(/[?&]address=([^&]+)/);
+        if (match && match[1]) {
+          setWalletAddress(decodeURIComponent(match[1]));
+        } else {
+          Alert.alert('Wallet Connect', 'No wallet address found in redirect.');
+        }
+      }
+    } catch (e) {
+      Alert.alert('Wallet Connect Error', 'Failed to connect Flow wallet.');
+    }
+    setLoading(false);
+  };
 
   const handleEmailAuth = async () => {
     if (!email.trim() || !email.includes('@')) {
       Alert.alert('Invalid Email', 'Please enter a valid email address');
       return;
     }
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      router.push('/home');
-    }, 1500);
-  };
-
-  const handleWalletAuth = async (walletType: string) => {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
@@ -134,45 +153,15 @@ export default function AuthScreen() {
               </View>
             ) : (
               <View style={styles.walletContainer}>
-                <Text style={styles.walletText}>
-                  Connect your wallet to access decentralized car rentals
-                </Text>
-                <View style={styles.walletOptions}>
-                  <TouchableOpacity
-                    style={styles.walletOption}
-                    onPress={() => handleWalletAuth('metamask')}
-                    disabled={loading}
-                  >
-                    <Image
-                      source={{ uri: 'https://api.a0.dev/assets/image?text=Metamask&aspect=1:1' }}
-                      style={styles.walletIcon}
-                    />
-                    <Text style={styles.walletName}>MetaMask</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.walletOption}
-                    onPress={() => handleWalletAuth('walletconnect')}
-                    disabled={loading}
-                  >
-                    <Image
-                      source={{ uri: 'https://api.a0.dev/assets/image?text=WalletConnect&aspect=1:1' }}
-                      style={styles.walletIcon}
-                    />
-                    <Text style={styles.walletName}>WalletConnect</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.walletOption}
-                    onPress={() => handleWalletAuth('coinbase')}
-                    disabled={loading}
-                  >
-                    <Image
-                      source={{ uri: 'https://api.a0.dev/assets/image?text=Coinbase&aspect=1:1' }}
-                      style={styles.walletIcon}
-                    />
-                    <Text style={styles.walletName}>Coinbase</Text>
-                  </TouchableOpacity>
-                </View>
-                {loading && <ActivityIndicator color="#4facfe" style={styles.walletLoading} />}
+                {walletAddress ? (
+                  <View style={{ alignItems: 'center', marginBottom: 16 }}>
+                    <Text style={{ fontSize: 16, color: '#4facfe', fontWeight: 'bold' }}>Wallet Connected</Text>
+                    <Text style={{ fontSize: 14, color: '#222', marginTop: 4 }}>{walletAddress}</Text>
+                  </View>
+                ) : null}
+                <GradientButton onPress={handleFlowWalletAuth} disabled={loading || !!walletAddress} style={{ marginTop: 8 }}>
+                  {loading ? <ActivityIndicator color="#fff" /> : (walletAddress ? 'Wallet Connected' : 'Connect Flow Wallet')}
+                </GradientButton>
               </View>
             )}
             <View style={styles.footer}>

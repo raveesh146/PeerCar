@@ -13,14 +13,17 @@
   "dependencies": {
     "@ethersproject/shims": "^5.8.0",
     "@expo/vector-icons": "^14.1.0",
+    "@onflow/fcl": "^1.19.0",
     "@privy-io/expo": "^0.55.4",
     "@privy-io/expo-native-extensions": "^0.0.5",
     "@react-navigation/bottom-tabs": "^7.3.10",
     "@react-navigation/elements": "^2.3.8",
     "@react-navigation/native": "^7.1.6",
+    "ethers": "^6.15.0",
     "expo": "~53.0.15",
     "expo-apple-authentication": "~7.2.4",
     "expo-application": "~6.1.5",
+    "expo-auth-session": "^6.2.1",
     "expo-blur": "~14.1.5",
     "expo-constants": "~17.1.6",
     "expo-crypto": "~14.1.5",
@@ -28,6 +31,7 @@
     "expo-font": "~13.3.2",
     "expo-haptics": "~14.1.4",
     "expo-image": "~2.3.1",
+    "expo-linear-gradient": "~14.1.5",
     "expo-linking": "~7.1.7",
     "expo-router": "~5.1.2",
     "expo-secure-store": "~14.2.3",
@@ -49,7 +53,7 @@
     "react-native-screens": "~4.11.1",
     "react-native-web": "~0.20.0",
     "react-native-webview": "13.13.5",
-    "expo-linear-gradient": "~14.1.5"
+    "web3.storage": "^4.5.5"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
