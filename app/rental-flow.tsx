@@ -3,15 +3,15 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React, { ReactNode, useState } from 'react';
 import {
-    Alert,
-    Dimensions,
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  Alert,
+  Dimensions,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -147,12 +147,24 @@ export default function RentalFlowScreen() {
         `The car owner will be notified and you can arrange pickup!`,
         [
           {
-            text: 'View Rental Details',
-            onPress: () => router.push('/rental-details')
+            text: 'Chat with Owner',
+            onPress: () => router.push({
+              pathname: '/chat',
+              params: {
+                car: JSON.stringify({
+                  id: rentalDetails.carId,
+                  make: rentalDetails.carName.split(' ')[0],
+                  model: rentalDetails.carName.split(' ')[1],
+                  year: rentalDetails.carName.split(' ')[2],
+                  pricePerDay: rentalDetails.pricePerDay,
+                  owner: { name: rentalDetails.owner }
+                })
+              }
+            })
           },
           {
             text: 'OK',
-            onPress: () => router.push('/')
+            onPress: () => router.push({ pathname: '/' })
           }
         ]
       );
