@@ -1,0 +1,25 @@
+{
+  "name": "PeerCar",
+  "tagline": "Decentralized peer-to-peer car rentals on Filecoin FEVM",
+  "description": "A decentralized platform for renting cars as NFTs, with stablecoin payments (USDFC), on-chain rental workflow, and all media stored on IPFS/Filecoin. Built with React Native (Expo), Solidity, and Ethers.js.",
+  "team": [
+    {
+      "name": "raveesh",
+      "email": "raveeshgulati15@gmail.com"
+    }
+  ],
+  "demo_url": "https://example.com/demo",
+  "video_url": "https://youtube.com/watch?v=your-demo-video",
+  "technologies": [
+    "React Native (Expo)",
+    "Solidity",
+    "Ethers.js",
+    "Filecoin FEVM",
+    "Web3.Storage",
+    "USDFC",
+    "Tailwind CSS",
+    "React Context",
+    "@tanstack/react-query",
+    "@reown/appkit"
+  ]
+} 

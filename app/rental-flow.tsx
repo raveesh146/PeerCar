@@ -82,20 +82,30 @@ export default function RentalFlowScreen() {
   const [formData, setFormData] = useState({
     startDate: '',
     endDate: '',
-    driverLicense: 'D1234567',
-    insuranceInfo: 'Geico Policy #A1B2C3D4',
+    pickupLocation: '',
+    dropoffLocation: '',
+    driverLicense: '',
+    insuranceInfo: ''
   });
 
   const DEMO_USDFC_BALANCE = 1000;
   const [usdfcApproved, setUsdfcApproved] = useState(false);
 
+  // Helper to parse dd-mm-yyyy to Date
+  function parseDateDMY(dateStr: string): Date | null {
+    const [day, month, year] = dateStr.split('-').map(Number);
+    if (!day || !month || !year) return null;
+    return new Date(year, month - 1, day);
+  }
+
   const calculateRental = () => {
     if (formData.startDate && formData.endDate) {
-      const start = new Date(formData.startDate);
-      const end = new Date(formData.endDate);
-      const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+      const start = parseDateDMY(formData.startDate);
+      const end = parseDateDMY(formData.endDate);
+      if (!start || !end) return;
+      // Calculate days inclusive of both start and end date
+      const days = Math.max(1, Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1);
       const totalCost = days * rentalDetails.pricePerDay;
-      
       setRentalDetails(prev => ({
         ...prev,
         startDate: formData.startDate,
@@ -138,10 +148,10 @@ export default function RentalFlowScreen() {
       Alert.alert(
         '🎉 Rental Confirmed!',
         `Your rental has been processed on Filecoin!\n\n` +
-        `📋 Transaction Hash: 0x8f3a...b7c2\n` +
-        `🚗 Car: Tesla Model 3 2022\n` +
-        `📅 Duration: 3 days\n` +
-        `💰 Total: $240.00\n\n` +
+        `📋 Transaction Hash: 0x${Math.random().toString(16).slice(2,10)}...${Math.random().toString(16).slice(-4)}\n` +
+        `🚗 Car: ${rentalDetails.carName}\n` +
+        `📅 Duration: ${rentalDetails.totalDays} days\n` +
+        `💰 Total: $${rentalDetails.totalCost}\n\n` +
         `The car owner will be notified and you can arrange pickup!`,
         [
           {
@@ -189,7 +199,7 @@ export default function RentalFlowScreen() {
         <Text style={styles.inputLabel}>Start Date</Text>
         <TextInput
           style={styles.textInput}
-          placeholder="YYYY-MM-DD"
+          placeholder="DD-MM-YYYY"
           value={formData.startDate}
           onChangeText={(text) => {
             setFormData(prev => ({ ...prev, startDate: text }));
@@ -202,7 +212,7 @@ export default function RentalFlowScreen() {
         <Text style={styles.inputLabel}>End Date</Text>
         <TextInput
           style={styles.textInput}
-          placeholder="YYYY-MM-DD"
+          placeholder="DD-MM-YYYY"
           value={formData.endDate}
           onChangeText={(text) => {
             setFormData(prev => ({ ...prev, endDate: text }));
@@ -225,6 +235,39 @@ export default function RentalFlowScreen() {
           </Text>
         </View>
       )}
+    </GlassCard>
+  );
+
+  const renderStep2 = () => (
+    <GlassCard style={styles.stepCard}>
+      <Text style={styles.stepTitle}>Step 2: Pickup & Dropoff</Text>
+      
+      <View style={styles.inputGroup}>
+        <Text style={styles.inputLabel}>Pickup Location</Text>
+        <TextInput
+          style={styles.textInput}
+          placeholder="Enter pickup address"
+          value={formData.pickupLocation}
+          onChangeText={(text) => setFormData(prev => ({ ...prev, pickupLocation: text }))}
+        />
+      </View>
+
+      <View style={styles.inputGroup}>
+        <Text style={styles.inputLabel}>Dropoff Location</Text>
+        <TextInput
+          style={styles.textInput}
+          placeholder="Enter dropoff address"
+          value={formData.dropoffLocation}
+          onChangeText={(text) => setFormData(prev => ({ ...prev, dropoffLocation: text }))}
+        />
+      </View>
+
+      <View style={styles.infoCard}>
+        <Ionicons name="information-circle" size={20} color="#4facfe" />
+        <Text style={styles.infoText}>
+          You'll coordinate pickup details with the car owner after booking confirmation.
+        </Text>
+      </View>
     </GlassCard>
   );
 
@@ -326,8 +369,9 @@ export default function RentalFlowScreen() {
   const renderCurrentStep = () => {
     switch (currentStep) {
       case 1: return renderStep1();
-      case 2: return renderStep3();
-      case 3: return renderStep4();
+      case 2: return renderStep2();
+      case 3: return renderStep3();
+      case 4: return renderStep4();
       default: return renderStep1();
     }
   };

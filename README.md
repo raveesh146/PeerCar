@@ -101,6 +101,9 @@ A decentralized peer-to-peer car rental platform built with React Native (Expo),
 2. Compile & deploy to Calibration testnet (chainId 314159) via Hardhat or Remix.
 3. Copy deployed contract address into `.env` as `EXPO_PUBLIC_CONTRACT_ADDRESS`.
 
+**Deployed Contract Address:**
+[`0x022FC1A0058321b5d6ceDD82fFf027256aA59EaA`](https://calibration.filfox.info/en/address/0x022FC1A0058321b5d6ceDD82fFf027256aA59EaA?t=3)
+
 ---
 
 ## 🏗️ Folder Structure
