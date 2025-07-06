@@ -1,5 +1,7 @@
 # CarRental DePIN App
 
+![Architecture Flow](./assets/images/architecture-flow.png)
+
 A decentralized peer-to-peer car rental platform built with React Native (Expo), Filecoin (FEVM), and stablecoin payments (USDFC). Hosts mint NFTs for cars, renters book and pay in USDFC, and all media (photos, videos, logs) are stored permanently via IPFS/Filecoin.
 
 ---
