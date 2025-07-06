@@ -165,65 +165,67 @@ export default function ChatScreen() {
 
   return (
     <GradientBackground>
-      <SafeAreaView style={{ flex: 1 }}>
-        <View style={styles.header}>
-          <TouchableOpacity 
-            style={styles.backButton}
-            onPress={() => router.back()}
-          >
-            <Ionicons name="arrow-back" size={24} color="#fff" />
-          </TouchableOpacity>
-          
-          <View style={styles.headerInfo}>
-            <Text style={styles.headerTitle}>
-              {car.owner.name}
-            </Text>
-            <Text style={styles.headerSubtitle}>
-              {car.year} {car.make} {car.model}
-            </Text>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
+      >
+        <SafeAreaView style={{ flex: 1 }}>
+          <View style={styles.header}>
+            <TouchableOpacity 
+              style={styles.backButton}
+              onPress={() => router.back()}
+            >
+              <Ionicons name="arrow-back" size={24} color="#fff" />
+            </TouchableOpacity>
+            
+            <View style={styles.headerInfo}>
+              <Text style={styles.headerTitle}>
+                {car.owner.name}
+              </Text>
+              <Text style={styles.headerSubtitle}>
+                {car.year} {car.make} {car.model}
+              </Text>
+            </View>
+            
+            <TouchableOpacity style={styles.infoButton}>
+              <Ionicons name="information-circle-outline" size={24} color="#fff" />
+            </TouchableOpacity>
           </View>
           
-          <TouchableOpacity style={styles.infoButton}>
-            <Ionicons name="information-circle-outline" size={24} color="#fff" />
-          </TouchableOpacity>
-        </View>
-        
-        <FlatList
-          ref={flatListRef}
-          data={messages}
-          renderItem={renderMessage}
-          keyExtractor={item => item.id}
-          contentContainerStyle={styles.messagesList}
-          onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
-        />
-        
-        <KeyboardAvoidingView 
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={styles.inputContainer}
-        >
-          <GlassCard style={styles.inputCard}>
-            <TextInput
-              style={styles.textInput}
-              value={newMessage}
-              onChangeText={setNewMessage}
-              placeholder="Type a message..."
-              placeholderTextColor="#b0b0b0"
-              multiline
-            />
-            <TouchableOpacity 
-              style={styles.sendButton}
-              onPress={sendMessage}
-              disabled={!newMessage.trim()}
-            >
-              <Ionicons 
-                name="send" 
-                size={20} 
-                color={newMessage.trim() ? '#4facfe' : '#b0b0b0'} 
+          <FlatList
+            ref={flatListRef}
+            data={messages}
+            renderItem={renderMessage}
+            keyExtractor={item => item.id}
+            contentContainerStyle={styles.messagesList}
+            onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
+          />
+          <View style={styles.inputContainer}>
+            <GlassCard style={styles.inputCard}>
+              <TextInput
+                style={styles.textInput}
+                value={newMessage}
+                onChangeText={setNewMessage}
+                placeholder="Type a message..."
+                placeholderTextColor="#b0b0b0"
+                multiline
               />
-            </TouchableOpacity>
-          </GlassCard>
-        </KeyboardAvoidingView>
-      </SafeAreaView>
+              <TouchableOpacity 
+                style={styles.sendButton}
+                onPress={sendMessage}
+                disabled={!newMessage.trim()}
+              >
+                <Ionicons 
+                  name="send" 
+                  size={20} 
+                  color={newMessage.trim() ? '#4facfe' : '#b0b0b0'} 
+                />
+              </TouchableOpacity>
+            </GlassCard>
+          </View>
+        </SafeAreaView>
+      </KeyboardAvoidingView>
     </GradientBackground>
   );
 }
