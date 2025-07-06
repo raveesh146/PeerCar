@@ -5,11 +5,11 @@
 
 
 <p align="center">
-  <img src="./assets/images/1.png" height="500"/>
-  <img src="./assets/images/2.png" height="500"/>
-  <img src="./assets/images/3.png" height="500"/>
-  <img src="./assets/images/4.png" height="500"/>
-  <img src="./assets/images/5.png" height="500"/>
+  <img src="./assets/images/1.png" height ="250" width="18%"/>
+  <img src="./assets/images/2.png"  height ="250" width="18%"/>
+  <img src="./assets/images/3.png"  height ="250" width="18%"/>
+  <img src="./assets/images/4.png"  height ="250" width="18%"/>
+  <img src="./assets/images/5.png"  height ="250" width="18%"/>
 </p>
 
 
@@ -66,7 +66,7 @@
 
 1. **Clone the repo**
    ```bash
-   git clone https://github.com/your-org/PeerCar.git
+   git clone https://github.com/raveesh146/PeerCar.git
    cd PeerCar
    ```
 2. **Install dependencies**
