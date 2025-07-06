@@ -1,14 +1,26 @@
-# CarRental DePIN App
+# PeerCar – P2P Car Rental Mobile App (Phone as a DePIN Node)
 
+### A decentralized peer-to-peer car rental mobile app built with React Native (Expo) and Filecoin FEVM, using stablecoin payments (USDFC).</br>
+### Owners (Lenders) mint car NFTs and pay storage fees; renters book & pay in USDFC. All media (photos, videos, logs) lives on IPFS/Filecoin via Web3.Storage. </br>**Your phone acts as a DePIN node.**
+
+
+<p align="center">
+  <img src="./assets/images/1.png" height="500"/>
+  <img src="./assets/images/2.png" height="500"/>
+  <img src="./assets/images/3.png" height="500"/>
+  <img src="./assets/images/4.png" height="500"/>
+  <img src="./assets/images/5.png" height="500"/>
+</p>
+
+
+## 🧩 Architecture
 ![Architecture Flow](./assets/images/architecture-flow.png)
-
-A decentralized peer-to-peer car rental platform built with React Native (Expo), Filecoin (FEVM), and stablecoin payments (USDFC). Hosts mint NFTs for cars, renters book and pay in USDFC, and all media (photos, videos, logs) are stored permanently via IPFS/Filecoin.
 
 ---
 
 ## 🚀 Features
 
-- **Car NFTs:** Mint and list cars as ERC‑721 tokens on Filecoin's EVM (FEVM).
+- **Car NFTs:** Mint and list cars as ERC‑721 tokens on Filecoin FEVM.
 - **Stablecoin Payments:** All fees (listing, rental) paid in USDFC for predictable, USD‑pegged billing.
 - **Decentralized Storage:** Car metadata and rental logs stored on IPFS/Filecoin via Web3.Storage (or Lighthouse).
 - **Rental Workflow:** Approve & pay rental fee, automated escrow, and on-chain settlement to owner.
@@ -17,8 +29,12 @@ A decentralized peer-to-peer car rental platform built with React Native (Expo),
 - **In-app Chat:** Renters and owners can coordinate via built-in chat.
 - **Map-based Discovery:** Find cars near you using an interactive map.
 - **Wallet & Email Auth:** Authenticate with AppKit (by Reown) for seamless wallet connection or email login.
+- **DePIN Node:** Your phone acts as a decentralized infrastructure node, enabling true peer-to-peer rentals.
 
 ---
+
+### **Deployed Contract Address:**
+[`0x022FC1A0058321b5d6ceDD82fFf027256aA59EaA`](https://calibration.filfox.info/en/address/0x022FC1A0058321b5d6ceDD82fFf027256aA59EaA?t=3)
 
 ## 🛠️ Tech Stack
 
@@ -49,22 +65,16 @@ A decentralized peer-to-peer car rental platform built with React Native (Expo),
 ## ⚙️ Setup & Installation
 
 1. **Clone the repo**
-
    ```bash
-   git clone https://github.com/your-org/car-rental-depin.git
-   cd car-rental-depin
+   git clone https://github.com/your-org/PeerCar.git
+   cd PeerCar
    ```
-
 2. **Install dependencies**
-
    ```bash
    npm install
-   # or
-   yarn install
+
    ```
-
-3. **Add polyfills** (in `./app/_layout.tsx`)
-
+3. **Add polyfills** (in `./app/_layout.tsx`):
    ```js
    import "react-native-url-polyfill/auto";
    import { Buffer } from "buffer";
@@ -72,10 +82,7 @@ A decentralized peer-to-peer car rental platform built with React Native (Expo),
    import process from "process";
    global.process = process;
    ```
-
-4. **Environment Variables**
-   Create a `.env` file at project root:
-
+4. **Environment Variables:** Create a `.env` file at project root:
    ```env
    EXPO_PUBLIC_RPC_URL=https://api.calibration.node.glif.io/rpc/v1
    EXPO_PUBLIC_CHAIN_ID=314159
@@ -84,13 +91,10 @@ A decentralized peer-to-peer car rental platform built with React Native (Expo),
    EXPO_PUBLIC_LISTING_FEE=<LISTING_FEE_IN_USDFC_UNITS>
    WEB3STORAGE_TOKEN=<YOUR_WEB3STORAGE_API_TOKEN>
    ```
-
 5. **Run the app**
-
    ```bash
    expo start
    ```
-
    Scan the QR code with Expo Go or run on simulator/emulator.
 
 ---
@@ -103,8 +107,6 @@ A decentralized peer-to-peer car rental platform built with React Native (Expo),
 2. Compile & deploy to Calibration testnet (chainId 314159) via Hardhat or Remix.
 3. Copy deployed contract address into `.env` as `EXPO_PUBLIC_CONTRACT_ADDRESS`.
 
-**Deployed Contract Address:**
-[`0x022FC1A0058321b5d6ceDD82fFf027256aA59EaA`](https://calibration.filfox.info/en/address/0x022FC1A0058321b5d6ceDD82fFf027256aA59EaA?t=3)
 
 ---
 
@@ -143,30 +145,27 @@ A decentralized peer-to-peer car rental platform built with React Native (Expo),
 ├── package.json
 ├── package-lock.json
 ├── tsconfig.json
+├── LICENSE.md
 └── README.md
 ```
 
 ---
 
-## 🧩 Architecture
 
-```
-User <-> React Native App <-> Ethers.js <-> FEVM Smart Contract (CarRental.sol)
-                                 |-> Web3.Storage (IPFS/Filecoin)
-                                 |-> AppKit (wallet integration)
-```
+
+
 - **NFTs:** Each car is an ERC-721 NFT. Metadata and logs are stored as CIDs on IPFS.
 - **Smart Contract:** Handles minting, listing, renting, and log uploads.
 - **Storage:** All car data, images, and logs are pinned to IPFS via Web3.Storage.
 - **Wallet Integration:** AppKit provides a unified wallet connection experience for users, abstracting away direct WalletConnect or MetaMask integration.
 - **Stablecoin Payments:** All payments and fees are in USDFC (ERC-20), ensuring predictable, USD-pegged billing.
+- **DePIN Node:** Your phone acts as a decentralized infrastructure node, enabling true peer-to-peer rentals.
 
 ---
 
 ## 🎯 Usage Examples
 
 ### Listing a Car
-
 1. Connect wallet (via AppKit).
 2. Navigate to *Marketplace* → *List New Car*.
 3. Fill in car details & price per day.
@@ -174,7 +173,6 @@ User <-> React Native App <-> Ethers.js <-> FEVM Smart Contract (CarRental.sol)
 5. Images and documents are uploaded to IPFS/Filecoin; metadata CID is minted as NFT.
 
 ### Renting a Car
-
 1. Browse listed cars.
 2. Select car & choose rental duration.
 3. Approve `price × days` USDFC and confirm.
@@ -182,11 +180,9 @@ User <-> React Native App <-> Ethers.js <-> FEVM Smart Contract (CarRental.sol)
 5. Upload trip logs (optional) after rental. Each log is uploaded to IPFS and the CID is recorded on-chain via `uploadLog(carId, cid)`.
 
 ### Owner Dashboard
-
 - View your listed cars, rental history, and withdraw collected USDFC.
 
 ### In-app Chat & Map
-
 - Coordinate with renters/owners via chat.
 - Use the map to find cars near your location.
 
@@ -235,4 +231,10 @@ User <-> React Native App <-> Ethers.js <-> FEVM Smart Contract (CarRental.sol)
 
 ## 📄 License
 
-MIT © Your Name / Your Org 
+See [LICENSE.md](./LICENSE.md) for details. This project is strictly for hackathon evaluation and may not be reused, copied, or resubmitted elsewhere without explicit written consent.
+
+---
+
+## 📬 Contact
+
+For questions, feedback, or collaboration, contact: **Raveesh Gulati** (<raveeshgulati15@gmail.com>) 
