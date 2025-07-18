@@ -5,7 +5,6 @@ import {
   ActivityIndicator,
   Dimensions,
   Image,
-  Pressable,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -115,21 +114,25 @@ export default function AuthScreen() {
                   </GradientButton>
                 ) : (
                   <View style={{ marginTop: 18, alignItems: 'center' }}>
-                    <Pressable style={styles.connectBtn} onPress={() => open()}>
-                      <Text style={styles.connectText}>Connect Wallet</Text>
-                    </Pressable>
-                    <TouchableOpacity onPress={signOut} style={{ marginTop: 16 }}>
+                    <GradientButton onPress={() => open()} style={{ width: 200, marginBottom: 8 }}>
+                      Connect Wallet
+                    </GradientButton>
+                    <TouchableOpacity onPress={signOut} style={{ marginTop: 8 }}>
                       <Text style={{ color: '#4facfe', fontWeight: 'bold', fontSize: 16 }}>Sign Out</Text>
                     </TouchableOpacity>
+
                   </View>
                 )}
               </View>
             ) : (
               <View style={styles.walletContainer}>
-                <View style={{ marginTop: 16 }}>
-                  <Pressable style={styles.connectBtn} onPress={() => open()}>
-                    <Text style={styles.connectText}>Connect Wallet</Text>
-                  </Pressable>
+                <View style={{ marginTop: 16, alignItems: 'center' }}>
+                  <GradientButton onPress={() => open()} style={{ width: 200, marginBottom: 8 }}>
+                    Connect Wallet
+                  </GradientButton>
+                  <TouchableOpacity onPress={() => router.push('/home')} style={{ marginTop: 8 }}>
+                    <Text style={{ color: '#00b894', fontWeight: 'bold', fontSize: 16 }}>Go to Home Page</Text>
+                  </TouchableOpacity>
                 </View>
               </View>
             )}
