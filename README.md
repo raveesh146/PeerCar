@@ -28,7 +28,7 @@
 - **Owner Dashboard:** Withdraw collected USDFC, view listings & rental history.
 - **In-app Chat:** Renters and owners can coordinate via built-in chat.
 - **Map-based Discovery:** Find cars near you using an interactive map.
-- **Wallet & Email Auth:** Authenticate with AppKit (by Reown) for seamless wallet connection or email login.
+- **Wallet, Email & Civic Auth:** Authenticate with AppKit (by Reown) for seamless wallet connection, email login, or Civic Auth (OIDC/OAuth2).
 - **DePIN Node:** Your phone acts as a decentralized infrastructure node, enabling true peer-to-peer rentals.
 
 ---
@@ -90,6 +90,10 @@
    EXPO_PUBLIC_CONTRACT_ADDRESS=<CarRental_CONTRACT_ADDRESS>
    EXPO_PUBLIC_LISTING_FEE=<LISTING_FEE_IN_USDFC_UNITS>
    WEB3STORAGE_TOKEN=<YOUR_WEB3STORAGE_API_TOKEN>
+   # Civic Auth integration
+   EXPO_PUBLIC_CIVIC_AUTH_URL=https://auth.civic.com/oauth
+   EXPO_PUBLIC_APP_SCHEME=civicauthmobile
+   EXPO_PUBLIC_CLIENTID=<YOUR_CIVIC_CLIENT_ID>
    ```
 5. **Run the app**
    ```bash
