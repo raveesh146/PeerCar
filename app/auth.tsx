@@ -1,15 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { ReactNode, useEffect, useState } from 'react';
+import React, { ReactNode, useContext, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Dimensions,
   Image,
   Pressable,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View
 } from 'react-native';
@@ -17,6 +15,7 @@ import {
 import { useAppKit } from '@reown/appkit-wagmi-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { AuthContext } from './contexts/AuthContext';
 import { useWallet } from './contexts/WalletContext';
 
 // Gradient background wrapper
@@ -59,28 +58,16 @@ function GradientButton({ children, onPress, style, disabled }: { children: Reac
 export default function AuthScreen() {
   const router = useRouter();
   const [authMethod, setAuthMethod] = useState<'email' | 'wallet'>('email');
-  const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const { isConnected, address, connect, disconnect, isLoading: walletLoading } = useWallet();
   const { open } = useAppKit();
+  const { state: authState, signIn, signOut } = useContext(AuthContext);
 
   useEffect(() => {
     if (authMethod === 'wallet' && isConnected) {
       router.push('/home');
     }
   }, [isConnected, authMethod]);
-
-  const handleEmailAuth = async () => {
-    if (!email.trim() || !email.includes('@')) {
-      Alert.alert('Invalid Email', 'Please enter a valid email address');
-      return;
-    }
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      router.push('/home');
-    }, 1500);
-  };
 
   return (
     <GradientBackground>
@@ -121,19 +108,21 @@ export default function AuthScreen() {
             </View>
             {authMethod === 'email' ? (
               <View style={styles.emailContainer}>
-                <Text style={styles.inputLabel}>Email Address</Text>
-                <TextInput
-                  style={styles.input}
-                  value={email}
-                  onChangeText={setEmail}
-                  placeholder="Enter your email"
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  placeholderTextColor="#b0b0b0"
-                />
-                <GradientButton onPress={handleEmailAuth} disabled={loading} style={{ marginTop: 18 }}>
-                  {loading ? <ActivityIndicator color="#fff" /> : 'Continue with Email'}
-                </GradientButton>
+                {/* Show Civic button if not authenticated, else show wallet connect and sign out */}
+                {!authState.isAuthenticated ? (
+                  <GradientButton onPress={signIn} disabled={loading} style={{ marginTop: 18 }}>
+                    {loading ? <ActivityIndicator color="#fff" /> : 'Sign in with Civic'}
+                  </GradientButton>
+                ) : (
+                  <View style={{ marginTop: 18, alignItems: 'center' }}>
+                    <Pressable style={styles.connectBtn} onPress={() => open()}>
+                      <Text style={styles.connectText}>Connect Wallet</Text>
+                    </Pressable>
+                    <TouchableOpacity onPress={signOut} style={{ marginTop: 16 }}>
+                      <Text style={{ color: '#4facfe', fontWeight: 'bold', fontSize: 16 }}>Sign Out</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
               </View>
             ) : (
               <View style={styles.walletContainer}>

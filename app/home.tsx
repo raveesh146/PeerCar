@@ -1,7 +1,8 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useContext } from 'react';
 import { Dimensions, Image, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { AuthContext } from './contexts/AuthContext';
 
 // Gradient background wrapper
 function GradientBackground({ children }: { children: ReactNode }) {
@@ -42,6 +43,7 @@ function GradientButton({ children, onPress, style, disabled }: { children: Reac
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { state: authState, signIn, signOut } = useContext(AuthContext);
 
   const handleRenterPress = () => {
     router.push('/renter-map');
@@ -69,7 +71,22 @@ export default function HomeScreen() {
               <Text style={styles.tagline}>Decentralized P2P Car Rentals</Text>
             </View>
             <View style={styles.roleContainer}>
-              <Text style={styles.roleTitle}>Choose your role:</Text>
+              {/* Replace email form with Civic Auth button */}
+              {!authState.isAuthenticated ? (
+                <GradientButton onPress={signIn} style={{ marginBottom: 16 }}>
+                  Sign in with Civic
+                </GradientButton>
+              ) : (
+                <View style={{ alignItems: 'center', marginBottom: 16 }}>
+                  <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 8 }}>
+                    Welcome, {authState.user?.name || authState.user?.email || 'User'}
+                  </Text>
+                  <GradientButton onPress={signOut} style={{ marginBottom: 16 }}>
+                    Sign Out
+                  </GradientButton>
+                </View>
+              )}
+              {/* Wallet connect button (as before) */}
               <GradientButton onPress={handleRenterPress} style={{ marginBottom: 16 }}>
                 I want to rent a car
               </GradientButton>
