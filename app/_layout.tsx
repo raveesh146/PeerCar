@@ -10,6 +10,7 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { WagmiProvider } from "wagmi";
+import { AuthProvider } from './contexts/AuthContext';
 import { CarDataProvider } from "./contexts/CarDataContext";
 import { WalletProvider } from "./contexts/WalletContext";
 
@@ -45,22 +46,24 @@ createAppKit({
 
 export default function RootLayout() {
   return (
-    <WagmiProvider config={wagmiConfig}>
-      <QueryClientProvider client={queryClient}>
+    <AuthProvider>
+      <WagmiProvider config={wagmiConfig}>
+        <QueryClientProvider client={queryClient}>
 
-          <WalletProvider>
-            <CarDataProvider>
-              <SafeAreaView style={{ flex: 1 }}>
-                <StatusBar style="dark" />
-                <Stack screenOptions={{ headerShown: false }}>
-                  <Stack.Screen name="index" options={{ headerShown: false }} />
-                  <Stack.Screen name="home" options={{ headerShown: false }} />
-                </Stack>
-              </SafeAreaView>
-            </CarDataProvider>
-          </WalletProvider>
-        <AppKit/>
-      </QueryClientProvider>
-    </WagmiProvider>
+            <WalletProvider>
+              <CarDataProvider>
+                <SafeAreaView style={{ flex: 1 }}>
+                  <StatusBar style="dark" />
+                  <Stack screenOptions={{ headerShown: false }}>
+                    <Stack.Screen name="index" options={{ headerShown: false }} />
+                    <Stack.Screen name="home" options={{ headerShown: false }} />
+                  </Stack>
+                </SafeAreaView>
+              </CarDataProvider>
+            </WalletProvider>
+          <AppKit/>
+        </QueryClientProvider>
+      </WagmiProvider>
+    </AuthProvider>
   );
 }
